@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Code Diff Feature Mockup — Thunkable Hikari</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.10/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body, #root { height: 100%; width: 100%; overflow: hidden; }
+
+/* ============================================================
+   HIKARI NAVBAR — Matches hikari-topbar-reference.html exactly
+   ============================================================ */
+.hikari-navbar {
+  position: relative;
+  top: 0; left: 0; right: 0;
+  z-index: 1001;
+  height: 60px;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 8px;
+  font-family: 'Graphik Web', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 22px;
+  color: #3e4045;
+  flex-shrink: 0;
+}
+.hikari-navbar-left {
+  width: 500px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.hikari-navbar-right {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+}
+.hikari-navbar-section {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  height: 28px;
+}
+.hikari-navbar-logo {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-items: center;
+}
+.hikari-navbar-logo img {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+}
+.hikari-navbar-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #3e4045;
+}
+.hikari-project-name {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 4px 8px;
+  gap: 4px;
+  height: 28px;
+  background-color: #f0f1f4;
+  color: #3e4045;
+  border-radius: 8px;
+  font-weight: 500;
+  margin-left: 12px;
+  max-width: 270px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.hikari-project-name-input {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+  background-color: transparent;
+  border: 1px solid transparent;
+  height: 22px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: #3e4045;
+  outline: none;
+  padding: 0;
+  width: 200px;
+}
+.hikari-project-name-input:hover {
+  background-color: #f0f1f4;
+  border-color: #a4a9b2;
+}
+.hikari-project-name .caret-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3e4045;
+}
+.hikari-btn--icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border: none;
+  border-radius: 8px;
+  background-color: #fafbfd;
+  color: #53565c;
+  cursor: pointer;
+  padding: 6px;
+  font-size: 14px;
+  transition: background-color 0.15s;
+}
+.hikari-btn--icon:hover {
+  background-color: #f0f1f4;
+  color: #3e4045;
+}
+.hikari-btn--icon.active {
+  background-color: #f0f1f4;
+  color: #3e4045;
+}
+.hikari-btn--icon.active.colored {
+  background-color: #e8ebff;
+  color: #1d1c22;
+}
+.hikari-btn--icon:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.hikari-nav-links {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  padding: 2px;
+  align-items: center;
+  border-radius: 10px;
+  background-color: #f0f1f4;
+  box-shadow: 1px 1px 4px 0 rgba(0, 0, 0, 0.01) inset;
+}
+.hikari-nav-link {
+  border: none;
+  height: 28px;
+  min-width: 48px;
+  padding: 2px 6px;
+  display: grid;
+  place-items: center;
+  background-color: #f0f1f4;
+  font-family: inherit;
+  color: #3e4045;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.hikari-nav-link--active {
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+  color: #1d1c22;
+  font-weight: 500;
+}
+.hikari-select {
+  font-family: inherit;
+  color: #3e4045;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #bdc5d6;
+  display: flex;
+  align-items: center;
+  padding: 0 8px 0 12px;
+  gap: 10px;
+  background: #ffffff;
+  cursor: pointer;
+  min-width: 120px;
+}
+.hikari-select .select-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hikari-select .select-label .page-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: #53565c;
+}
+.hikari-select .select-arrow {
+  width: 17px;
+  color: #3e4045;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.hikari-btn--primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  min-width: 28px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  background-color: #1d1c22;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  cursor: pointer;
+  box-shadow: none;
+  white-space: nowrap;
+}
+.hikari-btn--primary:hover {
+  background-color: #333239;
+}
+.hikari-btn--primary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+
+/* ── SVG Icon components (replacing lucide-react) ────────────────── */
+function IconGitCompare({ className }) {
+  return (<svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><path d="M11 18H8a2 2 0 0 1-2-2V9"/></svg>);
+}
+function IconCheck({ className }) {
+  return (<svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>);
+}
+function IconCode2({ className }) {
+  return (<svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>);
+}
+function IconLayout({ className }) {
+  return (<svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/></svg>);
+}
+function IconChevronRight({ className }) {
+  return (<svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>);
+}
+function IconRotateCw({ className }) {
+  return (<svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>);
+}
+
+/* ── Sub-components ────────────────────────────────────────────── */
+function VersionCard({ version, compareMode, isSelected, isFromVersion, isToVersion, onSelect, onRestore }) {
+  const isHighlighted = (!compareMode && isSelected) || (compareMode && (isFromVersion || isToVersion));
+  return (
+    <div className={`p-3 bg-white rounded transition-all ${isHighlighted ? "border-2 border-gray-900" : "border border-gray-200 hover:border-gray-300"} ${version.isCurrent && compareMode ? "cursor-default" : "cursor-pointer"}`} onClick={version.isCurrent && compareMode ? undefined : onSelect}>
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex-1">
+          <div className="text-sm text-gray-900 mb-1">{version.title}</div>
+          <div className="text-xs text-gray-500">{version.date}</div>
+        </div>
+        {version.isCurrent && (<span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">Current</span>)}
+      </div>
+      {!version.isCurrent && (
+        <button onClick={(e) => { e.stopPropagation(); onRestore(); }} className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-gray-700 hover:bg-gray-200 text-xs rounded font-medium w-full justify-center transition-all">
+          <IconRotateCw className="w-3 h-3" /> Restore this version
+        </button>
+      )}
+    </div>
+  );
+}
+
+function PhonePreview({ versionId }) {
+  const renderVersion = () => {
+    switch(versionId) {
+      case 0: // Add search bar and pull-to-refresh — current version
+        return (
+          <div className="w-full h-full flex flex-col">
+            {/* Status bar */}
+            <div className="bg-gray-900 px-6 py-2 flex items-center justify-between text-white text-xs flex-shrink-0">
+              <span>9:41</span>
+              <div className="flex items-center gap-1">
+                <div className="w-4 h-3 border border-white rounded-sm"></div>
+                <div className="w-3 h-3 border border-white rounded-full"></div>
+                <div className="flex gap-0.5"><div className="w-1 h-3 bg-white rounded"></div><div className="w-1 h-3 bg-white rounded"></div><div className="w-1 h-3 bg-white rounded"></div></div>
+              </div>
+            </div>
+            {/* Scroll content */}
+            <div className="flex-1 overflow-y-auto bg-white relative">
+              <div className="px-4 py-2 bg-blue-50 text-blue-700 text-xs font-medium text-center">↻ Pull to refresh</div>
+              {/* Search bar */}
+              <div className="px-4 py-3 border-b border-gray-200">
+                <div className="bg-gray-100 rounded-full px-4 py-2 flex items-center gap-2">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                  <input type="text" placeholder="Search trips..." className="bg-transparent text-sm outline-none w-full" />
+                </div>
+              </div>
+              {/* Hero banner */}
+              <div className="px-4 py-3">
+                <div className="rounded-xl overflow-hidden bg-gradient-to-br from-green-800 via-emerald-700 to-teal-600 p-4 h-32 flex items-end">
+                  <div className="text-white"><div className="font-semibold text-sm">Capture your journey,</div><div className="text-xs">one activity at a time</div></div>
+                </div>
+              </div>
+              {/* Recent Trips section */}
+              <div className="px-4 py-3">
+                <h2 className="text-lg font-semibold mb-2" style={{color:"#ff3a20"}}>Recent Trips</h2>
+                <div className="space-y-2">
+                  <div className="border border-gray-200 rounded-lg p-3">
+                    <div className="font-medium text-sm">Tokyo</div>
+                    <div className="text-xs text-gray-500">5 activities</div>
+                  </div>
+                  <div className="border border-gray-200 rounded-lg p-3">
+                    <div className="font-medium text-sm">Paris</div>
+                    <div className="text-xs text-gray-500">8 activities</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Bottom nav */}
+            <div className="bg-white border-t border-gray-200 px-2 py-2 flex items-center justify-around flex-shrink-0">
+              <button className="flex flex-col items-center gap-1 px-4 py-2"><svg className="w-5 h-5" style={{color:"#ff3a20"}} fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg><span className="text-xs" style={{color:"#ff3a20"}}>Home</span></button>
+              <button className="flex flex-col items-center gap-1 px-4 py-2"><svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10.5 1.5H3.75A2.25 2.25 0 001.5 3.75v12.5A2.25 2.25 0 003.75 18.5h12.5a2.25 2.25 0 002.25-2.25V9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg><span className="text-xs text-gray-400">Explore</span></button>
+              <button className="flex flex-col items-center gap-1 px-4 py-2"><svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5 5a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H7a2 2 0 01-2-2V5z"/></svg><span className="text-xs text-gray-400">Saved</span></button>
+              <button className="flex flex-col items-center gap-1 px-4 py-2"><svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"/></svg><span className="text-xs text-gray-400">Profile</span></button>
+            </div>
+          </div>
+        );
+      case 1: // Update primary color to Coral Red
+        return (
+          <div className="w-full h-full flex flex-col">
+            <div className="bg-gray-900 px-6 py-2 flex items-center justify-between text-white text-xs flex-shrink-0">
+              <span>9:41</span>
+              <div className="flex items-center gap-1">
+                <div className="w-4 h-3 border border-white rounded-sm"></div>
+                <div className="w-3 h-3 border border-white rounded-full"></div>
+                <div className="flex gap-0.5"><div className="w-1 h-3 bg-white rounded"></div><div className="w-1 h-3 bg-white rounded"></div><div className="w-1 h-3 bg-white rounded"></div></div>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto bg-white">
+              <div className="px-4 py-4">
+                <h1 className="text-2xl font-bold text-gray-900 mb-4">Travel App</h1>
+                <h2 className="text-lg font-semibold mb-3" style={{color:"#FF6B35"}}>My Trips</h2>
+                <div className="space-y-2">
+                  <div className="border border-gray-200 rounded-lg p-3">
+                    <div className="font-medium text-sm">Tokyo</div>
+                    <div className="text-xs text-gray-500">5 activities</div>
+                  </div>
+                  <div className="border border-gray-200 rounded-lg p-3">
+                    <div className="font-medium text-sm">Paris</div>
+                    <div className="text-xs text-gray-500">8 activities</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white border-t border-gray-200 px-2 py-2 flex items-center justify-around flex-shrink-0">
+              <button className="flex flex-col items-center gap-1 px-4 py-2"><svg className="w-5 h-5" style={{color:"#FF6B35"}} fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg><span className="text-xs" style={{color:"#FF6B35"}}>Home</span></button>
+              <button className="flex flex-col items-center gap-1 px-4 py-2"><svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10.5 1.5H3.75A2.25 2.25 0 001.5 3.75v12.5A2.25 2.25 0 003.75 18.5h12.5a2.25 2.25 0 002.25-2.25V9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg><span className="text-xs text-gray-400">Explore</span></button>
+              <button className="flex flex-col items-center gap-1 px-4 py-2"><svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5 5a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H7a2 2 0 01-2-2V5z"/></svg><span className="text-xs text-gray-400">Saved</span></button>
+              <button className="flex flex-col items-center gap-1 px-4 py-2"><svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"/></svg><span className="text-xs text-gray-400">Profile</span></button>
+            </div>
+          </div>
+        );
+      case 2: // Add bottom navigation tabs
+        return (
+          <div className="w-full h-full flex flex-col">
+            <div className="bg-gray-900 px-6 py-2 flex items-center justify-between text-white text-xs flex-shrink-0">
+              <span>9:41</span>
+              <div className="flex items-center gap-1">
+                <div className="w-4 h-3 border border-white rounded-sm"></div>
+                <div className="w-3 h-3 border border-white rounded-full"></div>
+                <div className="flex gap-0.5"><div className="w-1 h-3 bg-white rounded"></div><div className="w-1 h-3 bg-white rounded"></div><div className="w-1 h-3 bg-white rounded"></div></div>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto bg-white flex flex-col items-center justify-center">
+              <svg className="w-16 h-16 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 20l-5.447-2.724A1 1 0 003 16.382V5.618a1 1 0 011.553-.894L9 7.5m0 0l6.553-3.776A1 1 0 0117 5.618v10.764a1 1 0 01-1.447.894L9 12.5m0 0l6.553 3.776M9 12.5v7.5" /></svg>
+              <div className="text-center">
+                <div className="text-gray-900 font-medium">Start your journey</div>
+                <div className="text-sm text-gray-500">Create your first trip</div>
+              </div>
+            </div>
+            <div className="bg-white border-t border-gray-200 px-2 py-2 flex items-center justify-around flex-shrink-0">
+              <button className="flex flex-col items-center gap-1 px-4 py-2"><svg className="w-5 h-5" style={{color:"#FF6B35"}} fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg><span className="text-xs" style={{color:"#FF6B35"}}>Home</span></button>
+              <button className="flex flex-col items-center gap-1 px-4 py-2"><svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10.5 1.5H3.75A2.25 2.25 0 001.5 3.75v12.5A2.25 2.25 0 003.75 18.5h12.5a2.25 2.25 0 002.25-2.25V9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg><span className="text-xs text-gray-400">Explore</span></button>
+              <button className="flex flex-col items-center gap-1 px-4 py-2"><svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5 5a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H7a2 2 0 01-2-2V5z"/></svg><span className="text-xs text-gray-400">Saved</span></button>
+              <button className="flex flex-col items-center gap-1 px-4 py-2"><svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"/></svg><span className="text-xs text-gray-400">Profile</span></button>
+            </div>
+          </div>
+        );
+      case 3: // Add hero banner with gradient
+        return (
+          <div className="w-full h-full flex flex-col">
+            <div className="bg-gray-900 px-6 py-2 flex items-center justify-between text-white text-xs flex-shrink-0">
+              <span>9:41</span>
+              <div className="flex items-center gap-1">
+                <div className="w-4 h-3 border border-white rounded-sm"></div>
+                <div className="w-3 h-3 border border-white rounded-full"></div>
+                <div className="flex gap-0.5"><div className="w-1 h-3 bg-white rounded"></div><div className="w-1 h-3 bg-white rounded"></div><div className="w-1 h-3 bg-white rounded"></div></div>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto bg-white">
+              <div className="px-4 py-3 border-b border-gray-200 flex items-center gap-2">
+                <svg className="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 111.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd"/></svg>
+                <span className="text-sm font-medium">Back</span>
+              </div>
+              <div className="w-full h-40 bg-gradient-to-br from-green-800 via-emerald-700 to-teal-600 flex items-end p-4">
+                <div className="text-white"><div className="font-semibold">Travel App</div><div className="text-sm">Plan your adventures</div></div>
+              </div>
+              <div className="px-4 py-3">
+                <h2 className="text-lg font-semibold mb-3" style={{color:"#FF6B35"}}>Upcoming</h2>
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="text-gray-500 text-sm">No upcoming trips</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      case 4: // Initial version — basic layout
+        return (
+          <div className="w-full h-full flex flex-col bg-white">
+            <div className="bg-gray-900 px-6 py-2 flex items-center justify-between text-white text-xs flex-shrink-0">
+              <span>9:41</span>
+              <div className="flex items-center gap-1">
+                <div className="w-4 h-3 border border-white rounded-sm"></div>
+                <div className="w-3 h-3 border border-white rounded-full"></div>
+                <div className="flex gap-0.5"><div className="w-1 h-3 bg-white rounded"></div><div className="w-1 h-3 bg-white rounded"></div><div className="w-1 h-3 bg-white rounded"></div></div>
+              </div>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center px-6">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Travel App</h1>
+              <p className="text-gray-600 text-center mb-8">Plan your adventures</p>
+              <button className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium">Get Started</button>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="w-80 bg-black rounded-[3rem] p-3 shadow-2xl">
+      <div className="bg-gray-900 rounded-[2.5rem] overflow-hidden h-[680px] flex flex-col">
+        {renderVersion()}
+      </div>
+    </div>
+  );
+}
+
+function CollapsedSection({ startLine, endLine }) {
+  const [expanded, setExpanded] = useState(false);
+  const lineCount = endLine - startLine + 1;
+  if (expanded) {
+    return (
+      <div className="border-l-2 border-gray-700">
+        {Array.from({ length: Math.min(lineCount, 5) }, (_, i) => (
+          <div key={startLine + i} className="flex hover:bg-gray-800/50">
+            <div className="px-4 py-1 text-gray-500 text-right w-16 select-none flex-shrink-0">{startLine + i}</div>
+            <div className="px-2 py-1 flex-1 text-gray-600 whitespace-pre">{"  // ... code ..."}</div>
+          </div>
+        ))}
+        {lineCount > 5 && (<div className="flex hover:bg-gray-800/50 cursor-pointer" onClick={() => setExpanded(false)}><div className="px-4 py-1 text-gray-500 text-right w-16 select-none flex-shrink-0"></div><div className="px-2 py-1 flex-1 text-blue-400 whitespace-pre">{"\u2B06 Collapse"}</div></div>)}
+      </div>
+    );
+  }
+  return (
+    <div className="flex items-center hover:bg-gray-800/30 cursor-pointer border-l-2 border-gray-700" onClick={() => setExpanded(true)}>
+      <div className="px-4 py-2 text-gray-500 text-right w-16 select-none flex-shrink-0">{"\u22EF"}</div>
+      <div className="px-2 py-2 flex-1 text-blue-400"><span className="hover:underline">Expand {lineCount} unchanged lines</span></div>
+    </div>
+  );
+}
+
+function CodeLine({ number, content, type, highlight, annotation }) {
+  const bgColor = type === "added" ? "bg-green-900/20" : type === "removed" ? "bg-red-900/20" : "";
+  const borderColor = type === "added" ? "border-l-2 border-green-500" : type === "removed" ? "border-l-2 border-red-500" : "";
+  const renderContent = () => {
+    if (!highlight || !type) return React.createElement("span", null, content);
+    const index = content.indexOf(highlight);
+    if (index === -1) return React.createElement("span", null, content);
+    const highlightBg = type === "added" ? "bg-green-500/30" : "bg-red-500/30";
+    return React.createElement(React.Fragment, null,
+      content.slice(0, index),
+      React.createElement("span", { className: highlightBg }, content.slice(index, index + highlight.length)),
+      content.slice(index + highlight.length)
+    );
+  };
+  return (
+    <div className={`flex ${bgColor} ${borderColor} group relative hover:bg-gray-800/50`}>
+      <div className="px-4 py-1 text-gray-500 text-right w-16 select-none flex-shrink-0">{number}</div>
+      <div className="px-2 py-1 flex-1 whitespace-pre">{renderContent()}</div>
+      {annotation && (<div className="absolute right-2 top-1 opacity-0 group-hover:opacity-100 transition-opacity"><span className={`text-xs px-2 py-0.5 rounded ${type === "added" ? "bg-green-600 text-white" : type === "removed" ? "bg-red-600 text-white" : "bg-blue-600 text-white"}`}>{annotation}</span></div>)}
+    </div>
+  );
+}
+
+function CollapsedLines({ startLine, count, lines }) {
+  const [expanded, setExpanded] = useState(false);
+  if (expanded) {
+    return (
+      <>
+        <div className="flex bg-blue-900/10 border-y border-blue-500/30 cursor-pointer hover:bg-blue-900/20 transition-colors" onClick={() => setExpanded(false)}>
+          <div className="px-4 py-1 text-blue-400 text-right w-16 select-none flex-shrink-0">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" className="inline"><path d="M4.94 10.2734L8 7.22L11.06 10.2734L12 9.33335L8 5.33335L4 9.33335L4.94 10.2734Z"></path></svg>
+          </div>
+          <div className="px-2 py-1 flex-1 text-blue-400 text-xs italic">Click to collapse {lines.length} lines</div>
+        </div>
+        {lines.map((line) => (
+          <CodeLine key={'exp-' + line.number} number={line.number} content={line.content} type={line.type} highlight={line.highlight} annotation={line.annotation} />
+        ))}
+        <div className="flex bg-blue-900/10 border-y border-blue-500/30 cursor-pointer hover:bg-blue-900/20 transition-colors" onClick={() => setExpanded(false)}>
+          <div className="px-4 py-1 text-blue-400 text-right w-16 select-none flex-shrink-0">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" className="inline"><path d="M4.94 10.2734L8 7.22L11.06 10.2734L12 9.33335L8 5.33335L4 9.33335L4.94 10.2734Z"></path></svg>
+          </div>
+          <div className="px-2 py-1 flex-1 text-blue-400 text-xs italic">Click to collapse</div>
+        </div>
+      </>
+    );
+  }
+  return (
+    <div className="flex bg-blue-900/10 border-y border-blue-500/30 cursor-pointer hover:bg-blue-900/20 transition-colors" onClick={() => setExpanded(true)}>
+      <div className="px-4 py-1 text-blue-400 text-right w-16 select-none flex-shrink-0">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" className="inline"><path d="M11.06 5.72665L8 8.77999L4.94 5.72665L4 6.66665L8 10.6667L12 6.66665L11.06 5.72665Z"></path></svg>
+      </div>
+      <div className="px-2 py-1 flex-1 text-blue-400 text-xs italic">⋯ Show {count} hidden lines (lines {startLine}–{startLine + count - 1})</div>
+    </div>
+  );
+}
+
+function ChangeGroup({ title, changes }) {
+  const [isOpen, setIsOpen] = useState(true);
+  return (
+    <div className="border border-gray-200 rounded-lg overflow-hidden">
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-3 bg-white hover:bg-gray-50 transition-colors">
+        <div className="flex items-center gap-2">
+          <IconChevronRight className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? "rotate-90" : ""}`} />
+          <span className="text-sm font-medium text-gray-900">{title}</span>
+        </div>
+        <span className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded">{changes.length}</span>
+      </button>
+      {isOpen && (
+        <div className="p-3 bg-gray-50 border-t border-gray-200 space-y-2">
+          {changes.map((change, index) => (
+            <div key={index} className="text-xs">
+              {change.type === "modified" && change.oldValue && change.newValue ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-yellow-600">~</span>
+                  <span className="text-gray-700">{change.label}</span>
+                  <div className="flex items-center gap-1 ml-auto">
+                    {change.oldValue.startsWith("#") && <div className="w-4 h-4 rounded border border-gray-300" style={{ backgroundColor: change.oldValue }}></div>}
+                    <code className="text-gray-600">{change.oldValue}</code>
+                    <span className="text-gray-400">{"\u2192"}</span>
+                    {change.newValue.startsWith("#") && <div className="w-4 h-4 rounded border border-gray-300" style={{ backgroundColor: change.newValue }}></div>}
+                    <code className="text-gray-600">{change.newValue}</code>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className={change.type === "added" ? "text-green-600" : "text-red-600"}>{change.type === "added" ? "+" : "-"}</span>
+                  <span className="text-gray-700">{change.label}</span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Version Diffs Data ────────────────────────────────────────── */
+const versionDiffs = {
+  1: { // v1 → v0: color change + search bar
+    lines: [
+      { number: 3, content: "  const React = require('react');" },
+      { number: 4, content: "  const { useState, useEffect } = React;" },
+      { number: 5, content: "  const { View, Text, StyleSheet, ScrollView, RefreshControl } = React.N;" },
+      { number: 6, content: "  const theme = {" },
+      { number: 7, content: "    colors: {" },
+      { number: 8, content: "      primary: '#FF6B35',", type: "removed", highlight: "#FF6B35" },
+      { number: 9, content: "      primary: '#ff3a20',", type: "added", highlight: "#ff3a20", annotation: "Color updated" },
+      { number: 10, content: "      secondary: '#004E89'," },
+      { number: 11, content: "    }" },
+      { number: 12, content: "  };" },
+      { number: 13, content: "" },
+      { number: 14, content: "  function HomeScreen() {" },
+      { number: 15, content: "    const [filterType, setFilterType] = useState('all');" },
+      { number: 16, content: "    const [searchQuery, setSearchQuery] = useState('');", type: "added", annotation: "New state" },
+      { number: 17, content: "    const [isRefreshing, setIsRefreshing] = useState(false);", type: "added", annotation: "New state" },
+      { number: 18, content: "    const [activities, setActivities] = useState([]);" },
+      { number: 19, content: "" },
+      { number: 20, content: "    const onRefresh = async () => {", type: "added", annotation: "New handler" },
+      { number: 21, content: "      setIsRefreshing(true);", type: "added" },
+      { number: 22, content: "      await loadActivities();", type: "added" },
+      { number: 23, content: "      setIsRefreshing(false);", type: "added" },
+      { number: 24, content: "    };", type: "added" },
+      { number: 25, content: "" },
+      { number: 26, content: "    return (" },
+      { number: 27, content: "      <ScrollView>" },
+      { number: 28, content: "        <ScrollView refreshControl={<RefreshControl onRefresh={onRefresh} refreshing={isRefreshing} />}>", type: "added", annotation: "Refresh added" },
+      { number: 29, content: "          <SearchBar value={searchQuery} onChangeText={setSearchQuery} />", type: "added" },
+      { number: 30, content: "          <Text style={{ color: theme.colors.primary }}>Welcome back</Text>" },
+      { number: 31, content: "          <Text style={{ fontSize: 24, fontWeight: 'bold' }}>Travel App</Text>" },
+      { number: 32, content: "          <HeroBanner />" },
+      { number: 33, content: "          <Text style={{ color: theme.colors.primary, fontSize: 18, fontWeight: '600' }}>My Trips</Text>", type: "modified", highlight: "My Trips" },
+      { number: 34, content: "          <Text style={{ color: theme.colors.primary, fontSize: 18, fontWeight: '600' }}>Recent Trips</Text>", type: "added", highlight: "Recent Trips" },
+      { number: 35, content: "          <TripCards />" },
+      { number: 36, content: "        </ScrollView>" },
+      { number: 37, content: "      </ScrollView>" },
+    ]
+  },
+  2: { // v2 → v0: major restructure
+    lines: [
+      { number: 3, content: "  const React = require('react');" },
+      { number: 4, content: "  const { useState, useEffect } = React;" },
+      { number: 5, content: "  const { View, Text, StyleSheet, ScrollView, RefreshControl, TabNavigator } = React.N;" },
+      { number: 6, content: "  const theme = {" },
+      { number: 7, content: "    colors: {" },
+      { number: 8, content: "      primary: '#FF6B35',", type: "removed", highlight: "#FF6B35" },
+      { number: 9, content: "      primary: '#ff3a20',", type: "added", highlight: "#ff3a20" },
+      { number: 10, content: "      secondary: '#004E89'," },
+      { number: 11, content: "    }" },
+      { number: 12, content: "  };" },
+      { number: 13, content: "" },
+      { number: 14, content: "  const trips = [", type: "added", annotation: "Data array" },
+      { number: 15, content: "    { id: 1, name: 'Tokyo', activities: 5 },", type: "added" },
+      { number: 16, content: "    { id: 2, name: 'Paris', activities: 8 },", type: "added" },
+      { number: 17, content: "  ];", type: "added" },
+      { number: 18, content: "" },
+      { number: 19, content: "  function HomeScreen() {" },
+      { number: 20, content: "    const [filterType, setFilterType] = useState('all');" },
+      { number: 21, content: "    const [searchQuery, setSearchQuery] = useState('');", type: "added" },
+      { number: 22, content: "    const [isRefreshing, setIsRefreshing] = useState(false);", type: "added" },
+      { number: 23, content: "    const [activities, setActivities] = useState([]);" },
+      { number: 24, content: "" },
+      { number: 25, content: "    const onRefresh = async () => {", type: "added" },
+      { number: 26, content: "      setIsRefreshing(true);", type: "added" },
+      { number: 27, content: "      await loadActivities();", type: "added" },
+      { number: 28, content: "      setIsRefreshing(false);", type: "added" },
+      { number: 29, content: "    };", type: "added" },
+      { number: 30, content: "" },
+      { number: 31, content: "    const renderScreen = () => {" },
+      { number: 32, content: "      return (" },
+      { number: 33, content: "        <ScrollView>" },
+      { number: 34, content: "          <ScrollView refreshControl={<RefreshControl ... />}>", type: "added" },
+      { number: 35, content: "            <SearchBar value={searchQuery} />", type: "added" },
+      { number: 36, content: "            <HeroBanner gradient={{from: '#1a8917', to: '#0d9577'}} />", type: "added" },
+      { number: 37, content: "            {trips.map(trip => <TripCard key={trip.id} {...trip} />)}", type: "added" },
+      { number: 38, content: "          </ScrollView>" },
+      { number: 39, content: "        </ScrollView>" },
+      { number: 40, content: "      );" },
+      { number: 41, content: "    };" },
+      { number: 42, content: "" },
+      { number: 43, content: "    return <TabNavigator>", type: "added", annotation: "Nav structure" },
+      { number: 44, content: "      <TabNavigator.Screen name='Home' component={renderScreen} />", type: "added" },
+      { number: 45, content: "      <TabNavigator.Screen name='Explore' component={ExplorePage} />", type: "added" },
+      { number: 46, content: "      <TabNavigator.Screen name='Saved' component={SavedPage} />", type: "added" },
+      { number: 47, content: "      <TabNavigator.Screen name='Profile' component={ProfilePage} />", type: "added" },
+      { number: 48, content: "    </TabNavigator>;", type: "added" },
+    ]
+  },
+  3: { // v3 → v0: major restructure
+    lines: [
+      { number: 1, content: "  function HomeScreen() {" },
+      { number: 2, content: "    const navigation = useNavigation();" },
+      { number: 3, content: "    const [activeTab, setActiveTab] = useState('home');" },
+      { number: 4, content: "" },
+      { number: 5, content: "    return (" },
+      { number: 6, content: "      <View style={styles.container}>" },
+      { number: 7, content: "        <View style={styles.header}>", type: "removed" },
+      { number: 8, content: "          <TouchableOpacity onPress={() => navigation.goBack()}>", type: "removed" },
+      { number: 9, content: "            <Text>{'<'}</Text>", type: "removed" },
+      { number: 10, content: "          </TouchableOpacity>" },
+      { number: 11, content: "        </View>" },
+      { number: 12, content: "        <ScrollView refreshControl={<RefreshControl ... />}>", type: "added", annotation: "Pull-to-refresh" },
+      { number: 13, content: "          <SearchBar placeholder='Search trips...' />", type: "added" },
+      { number: 14, content: "          <HeroBanner gradient={{ from: '#1a8917', to: '#0d9577' }} />", type: "added", annotation: "Hero banner" },
+      { number: 15, content: "          <Text style={{ color: '#ff3a20' }}>Recent Trips</Text>", type: "added" },
+      { number: 16, content: "          {trips.map(trip => <TripCard key={trip.id} {...trip} />)}", type: "added" },
+      { number: 17, content: "        </ScrollView>" },
+      { number: 18, content: "        <TabNavigator>", type: "added", annotation: "Added tabs" },
+      { number: 19, content: "          <Tab name='Home' icon={<HomeIcon />} />", type: "added" },
+      { number: 20, content: "          <Tab name='Explore' icon={<ExploreIcon />} />", type: "added" },
+      { number: 21, content: "          <Tab name='Saved' icon={<SaveIcon />} />", type: "added" },
+      { number: 22, content: "          <Tab name='Profile' icon={<ProfileIcon />} />", type: "added" },
+      { number: 23, content: "        </TabNavigator>" },
+      { number: 24, content: "      </View>" },
+      { number: 26, content: "    );" },
+      { number: 27, content: "  };" },
+    ]
+  },
+  4: { // v4 → v0: everything changed — BIG DIFF with collapsible sections
+    lines: [
+      { number: 1, content: "import React from 'react';" },
+      { number: 2, content: "import { useState, useEffect, useCallback } from 'react';", type: "modified", annotation: "Added hooks" },
+      { number: 3, content: "import { View, Text, StyleSheet, ScrollView } from 'react-native';", type: "removed" },
+      { number: 4, content: "import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Image, TextInput, Animated, Dimensions } from 'react-native';", type: "added", annotation: "Extended imports" },
+      { number: 5, content: "import { NavigationContainer } from '@react-navigation/native';", type: "added" },
+      { number: 6, content: "import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';", type: "added", annotation: "Tab nav" },
+      { number: 7, content: "import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';", type: "added" },
+      { number: 8, content: "import { LinearGradient } from 'expo-linear-gradient';", type: "added" },
+      { number: 9, content: "" },
+      { number: 10, content: "// ═══ Constants & Configuration ═══" },
+      { number: 11, content: "const { width: SCREEN_WIDTH } = Dimensions.get('window');", type: "added" },
+      { number: 12, content: "const CARD_WIDTH = SCREEN_WIDTH * 0.85;", type: "added" },
+      { number: 13, content: "const CARD_MARGIN = 12;", type: "added" },
+      { number: 14, content: "" },
+      // Collapsed block: theme config (unchanged boilerplate)
+      { type: "collapsed", startLine: 15, count: 18, lines: [
+        { number: 15, content: "const theme = {" },
+        { number: 16, content: "  colors: {" },
+        { number: 17, content: "    background: '#FAFBFD'," },
+        { number: 18, content: "    surface: '#FFFFFF'," },
+        { number: 19, content: "    surfaceVariant: '#F0F1F4'," },
+        { number: 20, content: "    text: '#1D1C22'," },
+        { number: 21, content: "    textSecondary: '#53565C'," },
+        { number: 22, content: "    border: '#E0E2E8'," },
+        { number: 23, content: "    shadow: 'rgba(0, 0, 0, 0.08)'," },
+        { number: 24, content: "    success: '#22C55E'," },
+        { number: 25, content: "    warning: '#F59E0B'," },
+        { number: 26, content: "    error: '#EF4444'," },
+        { number: 27, content: "    info: '#3B82F6'," },
+        { number: 28, content: "  }," },
+        { number: 29, content: "  spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 }," },
+        { number: 30, content: "  borderRadius: { sm: 8, md: 12, lg: 16, xl: 24 }," },
+        { number: 31, content: "  typography: { h1: 28, h2: 22, body: 16, caption: 12 }," },
+        { number: 32, content: "};" },
+      ]},
+      { number: 33, content: "    primary: '#FF6B35',", type: "removed", highlight: "#FF6B35" },
+      { number: 34, content: "    primary: '#ff3a20',", type: "added", highlight: "#ff3a20", annotation: "Brand color" },
+      { number: 35, content: "    accent: '#004E89',", type: "removed" },
+      { number: 36, content: "    accent: '#E8EBFF',", type: "added", highlight: "#E8EBFF", annotation: "Lavender accent" },
+      { number: 37, content: "" },
+      { number: 38, content: "// ═══ Trip Data Model ═══", type: "added" },
+      { number: 39, content: "const INITIAL_TRIPS = [", type: "added", annotation: "Data model" },
+      { number: 40, content: "  { id: 1, name: 'Tokyo Adventure', destination: 'Tokyo, Japan',", type: "added" },
+      { number: 41, content: "    startDate: '2026-05-01', endDate: '2026-05-14',", type: "added" },
+      { number: 42, content: "    coverImage: require('./assets/tokyo.jpg'),", type: "added" },
+      { number: 43, content: "    activities: 12, budget: 3500, currency: 'USD',", type: "added" },
+      { number: 44, content: "    tags: ['culture', 'food', 'photography'],", type: "added" },
+      { number: 45, content: "    status: 'upcoming' },", type: "added" },
+      { number: 46, content: "  { id: 2, name: 'Paris Getaway', destination: 'Paris, France',", type: "added" },
+      { number: 47, content: "    startDate: '2026-06-10', endDate: '2026-06-20',", type: "added" },
+      { number: 48, content: "    coverImage: require('./assets/paris.jpg'),", type: "added" },
+      { number: 49, content: "    activities: 8, budget: 4200, currency: 'USD',", type: "added" },
+      { number: 50, content: "    tags: ['romance', 'art', 'cuisine'],", type: "added" },
+      { number: 51, content: "    status: 'planning' },", type: "added" },
+      { number: 52, content: "  { id: 3, name: 'Iceland Road Trip', destination: 'Reykjavik, Iceland',", type: "added" },
+      { number: 53, content: "    startDate: '2026-07-05', endDate: '2026-07-12',", type: "added" },
+      { number: 54, content: "    coverImage: require('./assets/iceland.jpg'),", type: "added" },
+      { number: 55, content: "    activities: 6, budget: 2800, currency: 'USD',", type: "added" },
+      { number: 56, content: "    tags: ['nature', 'adventure', 'driving'],", type: "added" },
+      { number: 57, content: "    status: 'draft' },", type: "added" },
+      { number: 58, content: "];", type: "added" },
+      { number: 59, content: "" },
+      // Collapsed block: utility helpers (unchanged)
+      { type: "collapsed", startLine: 60, count: 22, lines: [
+        { number: 60, content: "// ═══ Utility Helpers ═══" },
+        { number: 61, content: "function formatDate(dateString) {" },
+        { number: 62, content: "  const date = new Date(dateString);" },
+        { number: 63, content: "  return date.toLocaleDateString('en-US', {" },
+        { number: 64, content: "    month: 'short', day: 'numeric', year: 'numeric'" },
+        { number: 65, content: "  });" },
+        { number: 66, content: "}" },
+        { number: 67, content: "" },
+        { number: 68, content: "function getDaysUntil(dateString) {" },
+        { number: 69, content: "  const now = new Date();" },
+        { number: 70, content: "  const target = new Date(dateString);" },
+        { number: 71, content: "  const diff = Math.ceil((target - now) / (1000 * 60 * 60 * 24));" },
+        { number: 72, content: "  return diff > 0 ? diff : 0;" },
+        { number: 73, content: "}" },
+        { number: 74, content: "" },
+        { number: 75, content: "function formatCurrency(amount, currency) {" },
+        { number: 76, content: "  return new Intl.NumberFormat('en-US', {" },
+        { number: 77, content: "    style: 'currency', currency" },
+        { number: 78, content: "  }).format(amount);" },
+        { number: 79, content: "}" },
+        { number: 80, content: "" },
+        { number: 81, content: "const statusColors = { upcoming: '#22C55E', planning: '#3B82F6', draft: '#9CA3AF' };" },
+      ]},
+      { number: 82, content: "" },
+      { number: 83, content: "// ═══ SearchBar Component ═══", type: "added", annotation: "New component" },
+      { number: 84, content: "function SearchBar({ value, onChangeText, placeholder }) {", type: "added" },
+      { number: 85, content: "  return (", type: "added" },
+      { number: 86, content: "    <View style={styles.searchContainer}>", type: "added" },
+      { number: 87, content: "      <Ionicons name='search' size={20} color={theme.colors.textSecondary} />", type: "added" },
+      { number: 88, content: "      <TextInput style={styles.searchInput} value={value}", type: "added" },
+      { number: 89, content: "        onChangeText={onChangeText} placeholder={placeholder || 'Search trips...'}", type: "added" },
+      { number: 90, content: "        placeholderTextColor={theme.colors.textSecondary} />", type: "added" },
+      { number: 91, content: "      {value.length > 0 && (", type: "added" },
+      { number: 92, content: "        <TouchableOpacity onPress={() => onChangeText('')}>", type: "added" },
+      { number: 93, content: "          <Ionicons name='close-circle' size={18} color='#9CA3AF' />", type: "added" },
+      { number: 94, content: "        </TouchableOpacity>", type: "added" },
+      { number: 95, content: "      )}", type: "added" },
+      { number: 96, content: "    </View>", type: "added" },
+      { number: 97, content: "  );", type: "added" },
+      { number: 98, content: "}", type: "added" },
+      { number: 99, content: "" },
+      // Collapsed block: HeroBanner component (unchanged)
+      { type: "collapsed", startLine: 100, count: 15, lines: [
+        { number: 100, content: "// ═══ HeroBanner Component ═══" },
+        { number: 101, content: "function HeroBanner({ gradient }) {" },
+        { number: 102, content: "  return (" },
+        { number: 103, content: "    <LinearGradient colors={[gradient.from, gradient.to]}" },
+        { number: 104, content: "      style={styles.heroBanner} start={{x:0,y:0}} end={{x:1,y:1}}>" },
+        { number: 105, content: "      <Text style={styles.heroTitle}>Explore the World</Text>" },
+        { number: 106, content: "      <Text style={styles.heroSubtitle}>" },
+        { number: 107, content: "        Plan, organize, and share your travel experiences" },
+        { number: 108, content: "      </Text>" },
+        { number: 109, content: "      <TouchableOpacity style={styles.heroButton}>" },
+        { number: 110, content: "        <Text style={styles.heroButtonText}>Start Planning</Text>" },
+        { number: 111, content: "      </TouchableOpacity>" },
+        { number: 112, content: "    </LinearGradient>" },
+        { number: 113, content: "  );" },
+        { number: 114, content: "}" },
+      ]},
+      { number: 115, content: "" },
+      { number: 116, content: "// ═══ TripCard Component ═══", type: "added", annotation: "New component" },
+      { number: 117, content: "function TripCard({ trip, onPress }) {", type: "added" },
+      { number: 118, content: "  const daysLeft = getDaysUntil(trip.startDate);", type: "added" },
+      { number: 119, content: "  const fadeAnim = useRef(new Animated.Value(0)).current;", type: "added" },
+      { number: 120, content: "", type: "added" },
+      { number: 121, content: "  useEffect(() => {", type: "added" },
+      { number: 122, content: "    Animated.timing(fadeAnim, { toValue: 1, duration: 400,", type: "added" },
+      { number: 123, content: "      useNativeDriver: true }).start();", type: "added" },
+      { number: 124, content: "  }, []);", type: "added" },
+      { number: 125, content: "" },
+      { number: 126, content: "  return (", type: "added" },
+      { number: 127, content: "    <Animated.View style={[styles.tripCard, { opacity: fadeAnim }]}>", type: "added" },
+      { number: 128, content: "      <TouchableOpacity onPress={() => onPress(trip.id)} activeOpacity={0.8}>", type: "added" },
+      { number: 129, content: "        <Image source={trip.coverImage} style={styles.tripImage} />", type: "added" },
+      { number: 130, content: "        <View style={styles.tripBadge}>", type: "added" },
+      { number: 131, content: "          <View style={[styles.statusDot, { backgroundColor: statusColors[trip.status] }]} />", type: "added" },
+      { number: 132, content: "          <Text style={styles.statusText}>{trip.status}</Text>", type: "added" },
+      { number: 133, content: "        </View>", type: "added" },
+      { number: 134, content: "        <View style={styles.tripInfo}>", type: "added" },
+      { number: 135, content: "          <Text style={styles.tripName}>{trip.name}</Text>", type: "added" },
+      { number: 136, content: "          <Text style={styles.tripDest}>{trip.destination}</Text>", type: "added" },
+      { number: 137, content: "          <View style={styles.tripMeta}>", type: "added" },
+      { number: 138, content: "            <Text style={styles.tripDate}>{formatDate(trip.startDate)}</Text>", type: "added" },
+      { number: 139, content: "            <Text style={styles.tripDays}>{daysLeft}d away</Text>", type: "added" },
+      { number: 140, content: "          </View>", type: "added" },
+      { number: 141, content: "          <View style={styles.tripTags}>", type: "added" },
+      { number: 142, content: "            {trip.tags.map(tag => <View key={tag} style={styles.tag}>", type: "added" },
+      { number: 143, content: "              <Text style={styles.tagText}>{tag}</Text></View>)}", type: "added" },
+      { number: 144, content: "          </View>", type: "added" },
+      { number: 145, content: "        </View>", type: "added" },
+      { number: 146, content: "      </TouchableOpacity>", type: "added" },
+      { number: 147, content: "    </Animated.View>", type: "added" },
+      { number: 148, content: "  );", type: "added" },
+      { number: 149, content: "}", type: "added" },
+      { number: 150, content: "" },
+      { number: 151, content: "function HomeScreen() {" },
+      { number: 152, content: "  return (", type: "removed" },
+      { number: 153, content: "    <View style={{ justifyContent: 'center', alignItems: 'center' }}>", type: "removed" },
+      { number: 154, content: "      <Text>Travel App</Text>", type: "removed" },
+      { number: 155, content: "      <Text>Plan your adventures</Text>", type: "removed" },
+      { number: 156, content: "      <Button title='Get Started' onPress={() => {}} />", type: "removed" },
+      { number: 157, content: "    </View>", type: "removed" },
+      { number: 158, content: "  );", type: "removed" },
+      { number: 159, content: "" },
+      { number: 160, content: "  const [searchQuery, setSearchQuery] = useState('');", type: "added", annotation: "Search state" },
+      { number: 161, content: "  const [isRefreshing, setIsRefreshing] = useState(false);", type: "added", annotation: "Refresh state" },
+      { number: 162, content: "  const [trips, setTrips] = useState(INITIAL_TRIPS);", type: "added", annotation: "Trip state" },
+      { number: 163, content: "  const [activeFilter, setActiveFilter] = useState('all');", type: "added", annotation: "Filter state" },
+      { number: 164, content: "" },
+      { number: 165, content: "  const filteredTrips = trips.filter(trip => {", type: "added" },
+      { number: 166, content: "    const matchesSearch = trip.name.toLowerCase().includes(searchQuery.toLowerCase());", type: "added" },
+      { number: 167, content: "    const matchesFilter = activeFilter === 'all' || trip.status === activeFilter;", type: "added" },
+      { number: 168, content: "    return matchesSearch && matchesFilter;", type: "added" },
+      { number: 169, content: "  });", type: "added" },
+      { number: 170, content: "" },
+      { number: 171, content: "  const onRefresh = useCallback(async () => {", type: "added", annotation: "Memoized" },
+      { number: 172, content: "    setIsRefreshing(true);", type: "added" },
+      { number: 173, content: "    await loadActivities();", type: "added" },
+      { number: 174, content: "    setIsRefreshing(false);", type: "added" },
+      { number: 175, content: "  }, []);", type: "added" },
+      { number: 176, content: "" },
+      // Collapsed block: filter chips array (unchanged)
+      { type: "collapsed", startLine: 177, count: 12, lines: [
+        { number: 177, content: "  const filterChips = [" },
+        { number: 178, content: "    { key: 'all', label: 'All Trips' }," },
+        { number: 179, content: "    { key: 'upcoming', label: 'Upcoming' }," },
+        { number: 180, content: "    { key: 'planning', label: 'Planning' }," },
+        { number: 181, content: "    { key: 'draft', label: 'Drafts' }," },
+        { number: 182, content: "  ];" },
+        { number: 183, content: "" },
+        { number: 184, content: "  const handleTripPress = (tripId) => {" },
+        { number: 185, content: "    navigation.navigate('TripDetail', { tripId });" },
+        { number: 186, content: "  };" },
+        { number: 187, content: "" },
+        { number: 188, content: "  const insets = useSafeAreaInsets();" },
+      ]},
+      { number: 189, content: "" },
+      { number: 190, content: "  return (", type: "added" },
+      { number: 191, content: "    <View style={[styles.container, { paddingTop: insets.top }]}>", type: "added" },
+      { number: 192, content: "      <ScrollView refreshControl={", type: "added" },
+      { number: 193, content: "        <RefreshControl onRefresh={onRefresh} refreshing={isRefreshing}", type: "added" },
+      { number: 194, content: "          tintColor={theme.colors.primary} />}>", type: "added" },
+      { number: 195, content: "        <SearchBar value={searchQuery} onChangeText={setSearchQuery} />", type: "added" },
+      { number: 196, content: "        <HeroBanner gradient={{ from: '#1a8917', to: '#0d9577' }} />", type: "added", annotation: "Hero section" },
+      { number: 197, content: "        <View style={styles.filterRow}>", type: "added" },
+      { number: 198, content: "          {filterChips.map(chip => (", type: "added" },
+      { number: 199, content: "            <TouchableOpacity key={chip.key} onPress={() => setActiveFilter(chip.key)}", type: "added" },
+      { number: 200, content: "              style={[styles.chip, activeFilter === chip.key && styles.chipActive]}>", type: "added" },
+      { number: 201, content: "              <Text style={styles.chipText}>{chip.label}</Text>", type: "added" },
+      { number: 202, content: "            </TouchableOpacity>", type: "added" },
+      { number: 203, content: "          ))}", type: "added" },
+      { number: 204, content: "        </View>", type: "added" },
+      { number: 205, content: "        <Text style={styles.sectionTitle}>Recent Trips</Text>", type: "added" },
+      { number: 206, content: "        {filteredTrips.map(trip => (", type: "added" },
+      { number: 207, content: "          <TripCard key={trip.id} trip={trip} onPress={handleTripPress} />", type: "added" },
+      { number: 208, content: "        ))}", type: "added" },
+      { number: 209, content: "      </ScrollView>", type: "added" },
+      { number: 210, content: "    </View>", type: "added" },
+      { number: 211, content: "  );", type: "added" },
+      { number: 212, content: "}", type: "added" },
+      { number: 213, content: "" },
+      // Collapsed block: stylesheet (unchanged boilerplate)
+      { type: "collapsed", startLine: 214, count: 26, lines: [
+        { number: 214, content: "const styles = StyleSheet.create({" },
+        { number: 215, content: "  container: { flex: 1, backgroundColor: theme.colors.background }," },
+        { number: 216, content: "  searchContainer: { flexDirection: 'row', alignItems: 'center'," },
+        { number: 217, content: "    backgroundColor: theme.colors.surface, margin: 16," },
+        { number: 218, content: "    borderRadius: 12, padding: 12, gap: 8," },
+        { number: 219, content: "    shadowColor: theme.colors.shadow, shadowOffset: { width: 0, height: 2 }," },
+        { number: 220, content: "    shadowOpacity: 1, shadowRadius: 8, elevation: 3 }," },
+        { number: 221, content: "  searchInput: { flex: 1, fontSize: 16, color: theme.colors.text }," },
+        { number: 222, content: "  heroBanner: { margin: 16, borderRadius: 16, padding: 24 }," },
+        { number: 223, content: "  heroTitle: { fontSize: 28, fontWeight: 'bold', color: '#fff' }," },
+        { number: 224, content: "  heroSubtitle: { fontSize: 16, color: 'rgba(255,255,255,0.85)', marginTop: 8 }," },
+        { number: 225, content: "  heroButton: { marginTop: 16, backgroundColor: 'rgba(255,255,255,0.2)'," },
+        { number: 226, content: "    paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8," },
+        { number: 227, content: "    alignSelf: 'flex-start' }," },
+        { number: 228, content: "  heroButtonText: { color: '#fff', fontWeight: '600' }," },
+        { number: 229, content: "  filterRow: { flexDirection: 'row', paddingHorizontal: 16, gap: 8 }," },
+        { number: 230, content: "  chip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20," },
+        { number: 231, content: "    backgroundColor: theme.colors.surfaceVariant }," },
+        { number: 232, content: "  chipActive: { backgroundColor: theme.colors.primary }," },
+        { number: 233, content: "  chipText: { fontSize: 14, fontWeight: '500' }," },
+        { number: 234, content: "  sectionTitle: { fontSize: 22, fontWeight: '700', color: theme.colors.text," },
+        { number: 235, content: "    paddingHorizontal: 16, marginTop: 24, marginBottom: 12 }," },
+        { number: 236, content: "  tripCard: { marginHorizontal: 16, marginBottom: 16, borderRadius: 16," },
+        { number: 237, content: "    backgroundColor: theme.colors.surface, overflow: 'hidden'," },
+        { number: 238, content: "    shadowColor: theme.colors.shadow, elevation: 4 }," },
+        { number: 239, content: "  tripImage: { width: '100%', height: 180, borderTopLeftRadius: 16, borderTopRightRadius: 16 }," },
+      ]},
+      { number: 240, content: "" },
+      { number: 241, content: "const Tab = createBottomTabNavigator();", type: "added", annotation: "Tab navigator" },
+      { number: 242, content: "" },
+      { number: 243, content: "export default function App() {", type: "modified", annotation: "Restructured" },
+      { number: 244, content: "  return (", type: "added" },
+      { number: 245, content: "    <SafeAreaProvider>", type: "added" },
+      { number: 246, content: "      <NavigationContainer>", type: "added" },
+      { number: 247, content: "        <Tab.Navigator screenOptions={{ headerShown: false,", type: "added" },
+      { number: 248, content: "          tabBarActiveTintColor: theme.colors.primary,", type: "added" },
+      { number: 249, content: "          tabBarInactiveTintColor: theme.colors.textSecondary }}>", type: "added" },
+      { number: 250, content: "          <Tab.Screen name='Home' component={HomeScreen} />", type: "added" },
+      { number: 251, content: "          <Tab.Screen name='Explore' component={ExploreScreen} />", type: "added" },
+      { number: 252, content: "          <Tab.Screen name='Saved' component={SavedScreen} />", type: "added" },
+      { number: 253, content: "          <Tab.Screen name='Profile' component={ProfileScreen} />", type: "added" },
+      { number: 254, content: "        </Tab.Navigator>", type: "added" },
+      { number: 255, content: "      </NavigationContainer>", type: "added" },
+      { number: 256, content: "    </SafeAreaProvider>", type: "added" },
+      { number: 257, content: "  );", type: "added" },
+      { number: 258, content: "}", type: "added" },
+    ]
+  }
+};
+
+/* ── Version Change Summaries ──────────────────────────────────── */
+const versionChangeSummaries = {
+  1: [ // v1 → v0
+    { title: "Imports", changes: [
+      { type: "added", label: "RefreshControl (React.N)" },
+      { type: "added", label: "SearchBar component" },
+    ]},
+    { title: "Theme Colors", changes: [
+      { type: "modified", label: "colors.primary", oldValue: "#FF6B35", newValue: "#ff3a20" },
+    ]},
+    { title: "State Variables", changes: [
+      { type: "added", label: "searchQuery (useState)" },
+      { type: "added", label: "isRefreshing (useState)" },
+    ]},
+    { title: "Functions & Handlers", changes: [
+      { type: "added", label: "onRefresh() handler" },
+    ]},
+    { title: "UI Components", changes: [
+      { type: "added", label: "SearchBar component" },
+      { type: "added", label: "RefreshControl wrapper" },
+    ]},
+    { title: "Text Labels", changes: [
+      { type: "modified", label: "Section title", oldValue: "My Trips", newValue: "Recent Trips" },
+    ]},
+  ],
+  2: [ // v2 → v0
+    { title: "Imports", changes: [
+      { type: "added", label: "RefreshControl" },
+      { type: "added", label: "TabNavigator" },
+      { type: "added", label: "SearchBar component" },
+    ]},
+    { title: "Theme Colors", changes: [
+      { type: "modified", label: "colors.primary", oldValue: "#FF6B35", newValue: "#ff3a20" },
+    ]},
+    { title: "Data & Constants", changes: [
+      { type: "added", label: "trips array (initial data)" },
+    ]},
+    { title: "State Variables", changes: [
+      { type: "added", label: "searchQuery (useState)" },
+      { type: "added", label: "isRefreshing (useState)" },
+    ]},
+    { title: "Functions", changes: [
+      { type: "added", label: "onRefresh() handler" },
+      { type: "added", label: "renderScreen() with all components" },
+    ]},
+    { title: "Navigation & UI", changes: [
+      { type: "added", label: "TabNavigator structure" },
+      { type: "added", label: "SearchBar with state binding" },
+      { type: "added", label: "HeroBanner with gradient" },
+      { type: "added", label: "TripCard components (mapped)" },
+    ]},
+  ],
+  3: [ // v3 → v0
+    { title: "Layout Structure", changes: [
+      { type: "removed", label: "Simple back-arrow header" },
+      { type: "added", label: "RefreshControl with scroll" },
+      { type: "added", label: "SearchBar" },
+      { type: "added", label: "Hero banner with gradient" },
+    ]},
+    { title: "Navigation", changes: [
+      { type: "added", label: "TabNavigator (4 tabs)" },
+      { type: "added", label: "Tab definitions (Home, Explore, Saved, Profile)" },
+    ]},
+    { title: "Content Components", changes: [
+      { type: "added", label: "Recent Trips section" },
+      { type: "added", label: "TripCard components (mapped)" },
+    ]},
+    { title: "Styling", changes: [
+      { type: "modified", label: "colors.primary", oldValue: "#FF6B35", newValue: "#ff3a20" },
+    ]},
+  ],
+  4: [ // v4 → v0
+    { title: "Imports & Dependencies", changes: [
+      { type: "modified", label: "React hooks (added useEffect, useCallback)" },
+      { type: "added", label: "Extended RN imports (RefreshControl, TouchableOpacity, Animated, etc.)" },
+      { type: "added", label: "@react-navigation/native + bottom-tabs" },
+      { type: "added", label: "react-native-safe-area-context" },
+      { type: "added", label: "expo-linear-gradient" },
+    ]},
+    { title: "Theme & Colors", changes: [
+      { type: "modified", label: "colors.primary", oldValue: "#FF6B35", newValue: "#ff3a20" },
+      { type: "modified", label: "colors.accent", oldValue: "#004E89", newValue: "#E8EBFF" },
+      { type: "added", label: "Full theme object (spacing, borderRadius, typography)" },
+      { type: "added", label: "Screen dimension constants" },
+    ]},
+    { title: "Data Model", changes: [
+      { type: "added", label: "INITIAL_TRIPS array (3 trips with full metadata)" },
+      { type: "added", label: "Utility helpers (formatDate, getDaysUntil, formatCurrency)" },
+      { type: "added", label: "Status color mapping" },
+    ]},
+    { title: "New Components", changes: [
+      { type: "added", label: "SearchBar (with clear button)" },
+      { type: "added", label: "HeroBanner (LinearGradient)" },
+      { type: "added", label: "TripCard (animated, with image, badges, tags)" },
+    ]},
+    { title: "HomeScreen Rewrite", changes: [
+      { type: "removed", label: "Minimal layout (title + button)" },
+      { type: "added", label: "searchQuery, isRefreshing, trips, activeFilter state" },
+      { type: "added", label: "filteredTrips computed array" },
+      { type: "added", label: "Memoized onRefresh handler (useCallback)" },
+      { type: "added", label: "Filter chips row" },
+      { type: "added", label: "Pull-to-refresh ScrollView" },
+    ]},
+    { title: "App Structure & Navigation", changes: [
+      { type: "added", label: "SafeAreaProvider wrapper" },
+      { type: "added", label: "NavigationContainer" },
+      { type: "added", label: "Tab.Navigator (Home, Explore, Saved, Profile)" },
+      { type: "modified", label: "App export restructured" },
+    ]},
+    { title: "Stylesheet", changes: [
+      { type: "added", label: "26 new style definitions" },
+      { type: "added", label: "Shadow and elevation configs" },
+      { type: "added", label: "Responsive card sizing" },
+    ]},
+  ],
+};
+
+/* ── Main App ──────────────────────────────────────────────────── */
+function ThunkableMockup() {
+  const [compareMode, setCompareMode] = useState(false);
+  const [diffType, setDiffType] = useState("layout");
+  const [selectedOlderVersion, setSelectedOlderVersion] = useState(null);
+  const [selectedVersion, setSelectedVersion] = useState(0);
+  const [changeSummaryOpen, setChangeSummaryOpen] = useState(true);
+
+  const versions = [
+    { id: 0, title: "Add search bar and pull-to-refresh", date: "Apr 5, 03:15 PM", isCurrent: true },
+    { id: 1, title: "Update primary color to Coral Red", date: "Apr 4, 11:30 AM", isCurrent: false },
+    { id: 2, title: "Add bottom navigation tabs", date: "Apr 3, 04:22 PM", isCurrent: false },
+    { id: 3, title: "Add hero banner with gradient", date: "Apr 2, 09:45 AM", isCurrent: false },
+    { id: 4, title: "Initial version — basic layout", date: "Apr 1, 11:58 AM", isCurrent: false },
+  ];
+  const currentVersion = versions[0];
+
+  const handleRestoreVersion = (versionId) => { alert("Restoring version: " + versions.find(v => v.id === versionId)?.title); };
+  const handleVersionClick = (versionId) => {
+    if (compareMode && versionId !== 0) setSelectedOlderVersion(versionId);
+    else if (!compareMode) setSelectedVersion(versionId);
+  };
+  const toggleCompareMode = () => {
+    if (!compareMode) setSelectedOlderVersion(1); else setSelectedOlderVersion(null);
+    setCompareMode(!compareMode);
+  };
+
+  return (
+    <div className="h-screen w-screen flex flex-col" style={{ backgroundColor: '#4a4c51', fontFamily: "'Graphik Web', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" }}>
+      {/* ═══ HIKARI NAVBAR ═══ */}
+      <nav className="hikari-navbar">
+        <div className="hikari-navbar-left">
+          <div className="hikari-navbar-section">
+            <div className="hikari-navbar-logo">
+              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAEjUlEQVR4AZxUa2yTVRh+zvnabi0Z0o2B1zEUnHFoQqKJ+sfEiJKgP2RIvIxLRMWEy5SgUee2LAshaNRdyDQMWYChy9CNuQ2R6QLhB+ggAm6yyW4tzdiGu1/afm2/43vO9pUOtgVoznt73stzzulpOWb4DHV2zvW7XMk+t3svWWGK7nYHdJcrjeLkIY8nboYRmJbA39GRER0Mfk/NDUyIDWTDSwhhEUAugIYowyiRteRPuW4iEGfPWmnHBWAsmwYtm7IrEhRiuaylE22NhE1/EoFwuZz++PhG2vFmKmAkaoWuduKKuxutHT3wkDUoNrxeFf9YUy8t6x0YydM9nqdUQ4SaRKADaTR1sZk3OtoR+KUKFzNzsPbdPFSfvoztnxYjf9sX2J17GKnvF6EvyFH7lwvbskvh8/pP+1yul81+acME3ra2BQSEjzlwrh7+7wrRXHkMH3qcyPo6Ddu2r0ZuSRZKex2oONmEsrJMbN7yCrZsXYnkpQ9D14OgDe6fmEXjcP1L1jTtMiFOwxA4X3sKnr378fyfNqRfmY0nX3wGy154AlSDhIT58AuG4RBTMSY+nLMJD07GebIZqBPQsR6kV2GVYGFxLcqLKlE3aMNn9w3j0KI+NF9yoadnQKYxNDiCWIuBDfPGkJKShaI91SjIL8elCy2w2SyqhjFWoxxSioAzli76++DbmY3n6o/gg/kjeDt+FM/G+CELlo+0YM2bO/DSik+welU21s8dwzqS/HlXUVlYinMHf8Ln6a8iaoKA5sLf3v6ItLIftPtYw+eD0dWJxKgQojghMjshqTSsLKYRj//Xgt3R/yAl1qsyyfYAShb2Im/BEJyaUFhYadpO6XN661wYhkVoGvx0/xKcTj66dwRz6XrMPIuOhpa4EDBCGCveAxEImKmw5WhungXGZtM1wcrCX1S4YDrHvvYt2DduguXRx8ZLWv8FglMRjKfh+/si+K3Ph/fAPmgPLYYYG1UTpmvlSEoahRBDqDysCm9HDW99D/qJ31ULS0gELOohqthUnDFm6N3dQRO4U8sXJ4FZpyCQA/Vd2cPS3omYb2fMagPdRHiErusZMuBSaQmJX0l7u2JQw4khG/Zdc4DXn8FI1RFCxlfMokUN0lMEztzC8/SSzM1IfEbx6BrWtTqxpi0OgyvXEsEsWHq6gF9rMJiTgcG64yvMAYpABYzRg2bj/wcKmKy8/gC6BoYRCIZgZwI5H69CzYUSrN+UgpNJ3WBUzklZr/X0W6sqGilUK0wwp/yoGw7HAYWaStChpIRoqIXj7hgH/VaAOB5A3KFvzCo4XkuF20fTCREhY52z/KiLXLXCBJQWltmOHYiO7lcZqQy6ZSnSv0Giwp2AdfUbqBudBQ7xdGz18arIUh4ZxHx7sGdO/AP3MLu9FKEQbT8ye92XCYNxNDW5FcgYE3/cvzTtrqrfziggQk0ikDgrKPDP+aHidbrULHB+SmKThDEw+t+yaRwb3/lSpo5pGs8qLcvMl8GNchOBWeD8uTbHwh2rDPAltNty0FAlfLyFOey7QkJbQvWpjLEcslOu/wEAAP//ilJjmwAAAAZJREFUAwB/ecEjrpgfBgAAAABJRU5ErkJggg==" alt="Thunkable logo" />
+              <div className="hikari-navbar-title">AI</div>
+            </div>
+            <div className="hikari-project-name">
+              <input className="hikari-project-name-input" type="text" defaultValue="Travel App" readOnly />
+              <span className="caret-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.06 5.72665L8 8.77999L4.94 5.72665L4 6.66665L8 10.6667L12 6.66665L11.06 5.72665Z"></path></svg></span>
+            </div>
+          </div>
+          <div className="hikari-navbar-section">
+            <button className="hikari-btn--icon" title="Privacy"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><mask id="mask_lock" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24" style={{maskType:'alpha'}}><rect width="24" height="24" fill="#D9D9D9"></rect></mask><g mask="url(#mask_lock)"><path d="M6 22C5.45 22 4.97917 21.8042 4.5875 21.4125C4.19583 21.0208 4 20.55 4 20V10C4 9.45 4.19583 8.97917 4.5875 8.5875C4.97917 8.19583 5.45 8 6 8H7V6C7 4.61667 7.4875 3.4375 8.4625 2.4625C9.4375 1.4875 10.6167 1 12 1C13.3833 1 14.5625 1.4875 15.5375 2.4625C16.5125 3.4375 17 4.61667 17 6V8H18C18.55 8 19.0208 8.19583 19.4125 8.5875C19.8042 8.97917 20 9.45 20 10V20C20 20.55 19.8042 21.0208 19.4125 21.4125C19.0208 21.8042 18.55 22 18 22H6ZM6 20H18V10H6V20ZM12 17C12.55 17 13.0208 16.8042 13.4125 16.4125C13.8042 16.0208 14 15.55 14 15C14 14.45 13.8042 13.9792 13.4125 13.5875C13.0208 13.1958 12.55 13 12 13C11.45 13 10.9792 13.1958 10.5875 13.5875C10.1958 13.9792 10 14.45 10 15C10 15.55 10.1958 16.0208 10.5875 16.4125C10.9792 16.8042 11.45 17 12 17ZM9 8H15V6C15 5.16667 14.7083 4.45833 14.125 3.875C13.5417 3.29167 12.8333 3 12 3C11.1667 3 10.4583 3.29167 9.875 3.875C9.29167 4.45833 9 5.16667 9 6V8Z" fill="currentColor"></path></g></svg></button>
+            <button className="hikari-btn--icon" title="Color Schema"><svg width="16" height="16" viewBox="0 0 72 72" fill="currentColor"><mask id="mask_palette" maskUnits="userSpaceOnUse" x="0" y="0" width="72" height="72" style={{maskType:'alpha'}}><rect width="72" height="72" fill="currentColor"></rect></mask><g mask="url(#mask_palette)"><path d="M36 66C31.9 66 28.025 65.2125 24.375 63.6375C20.725 62.0625 17.5375 59.9125 14.8125 57.1875C12.0875 54.4625 9.9375 51.275 8.3625 47.625C6.7875 43.975 6 40.1 6 36C6 31.85 6.8125 27.95 8.4375 24.3C10.0625 20.65 12.2625 17.475 15.0375 14.775C17.8125 12.075 21.05 9.9375 24.75 8.3625C28.45 6.7875 32.4 6 36.6 6C40.6 6 44.375 6.6875 47.925 8.0625C51.475 9.4375 54.5875 11.3375 57.2625 13.7625C59.9375 16.1875 62.0625 19.0625 63.6375 22.3875C65.2125 25.7125 66 29.3 66 33.15C66 38.9 64.25 43.3125 60.75 46.3875C57.25 49.4625 53 51 48 51H42.45C42 51 41.6875 51.125 41.5125 51.375C41.3375 51.625 41.25 51.9 41.25 52.2C41.25 52.8 41.625 53.6625 42.375 54.7875C43.125 55.9125 43.5 57.2 43.5 58.65C43.5 61.15 42.8125 63 41.4375 64.2C40.0625 65.4 38.25 66 36 66ZM19.5 39C20.8 39 21.875 38.575 22.725 37.725C23.575 36.875 24 35.8 24 34.5C24 33.2 23.575 32.125 22.725 31.275C21.875 30.425 20.8 30 19.5 30C18.2 30 17.125 30.425 16.275 31.275C15.425 32.125 15 33.2 15 34.5C15 35.8 15.425 36.875 16.275 37.725C17.125 38.575 18.2 39 19.5 39ZM28.5 27C29.8 27 30.875 26.575 31.725 25.725C32.575 24.875 33 23.8 33 22.5C33 21.2 32.575 20.125 31.725 19.275C30.875 18.425 29.8 18 28.5 18C27.2 18 26.125 18.425 25.275 19.275C24.425 20.125 24 21.2 24 22.5C24 23.8 24.425 24.875 25.275 25.725C26.125 26.575 27.2 27 28.5 27ZM43.5 27C44.8 27 45.875 26.575 46.725 25.725C47.575 24.875 48 23.8 48 22.5C48 21.2 47.575 20.125 46.725 19.275C45.875 18.425 44.8 18 43.5 18C42.2 18 41.125 18.425 40.275 19.275C39.425 20.125 39 21.2 39 22.5C39 23.8 39.425 24.875 40.275 25.725C41.125 26.575 42.2 27 43.5 27ZM52.5 39C53.8 39 54.875 38.575 55.725 37.725C56.575 36.875 57 35.8 57 34.5C57 33.2 56.575 32.125 55.725 31.275C54.875 30.425 53.8 30 52.5 30C51.2 30 50.125 30.425 49.275 31.275C48.425 32.125 48 33.2 48 34.5C48 35.8 48.425 36.875 49.275 37.725C50.125 38.575 51.2 39 52.5 39ZM36 60C36.45 60 36.8125 59.875 37.0875 59.625C37.3625 59.375 37.5 59.05 37.5 58.65C37.5 57.95 37.125 57.125 36.375 56.175C35.625 55.225 35.25 53.8 35.25 51.9C35.25 49.8 35.975 48.125 37.425 46.875C38.875 45.625 40.65 45 42.75 45H48C51.3 45 54.125 44.0375 56.475 42.1125C58.825 40.1875 60 37.2 60 33.15C60 27.1 57.6875 22.0625 53.0625 18.0375C48.4375 14.0125 42.95 12 36.6 12C29.8 12 24 14.325 19.2 18.975C14.4 23.625 12 29.3 12 36C12 42.65 14.3375 48.3125 19.0125 52.9875C23.6875 57.6625 29.35 60 36 60Z" fill="currentColor"></path></g></svg></button>
+            <button className="hikari-btn--icon active colored" title="Versions"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><mask id="mask_versions" maskUnits="userSpaceOnUse" x="0" y="0" width="20" height="20" style={{maskType:'alpha'}}><rect width="20" height="20" fill="currentColor"></rect></mask><g mask="url(#mask_versions)"><path d="M9.99272 11.5748C9.55772 11.5748 9.18689 11.4202 8.88022 11.111C8.57355 10.8019 8.42022 10.4303 8.42022 9.99625C8.42022 9.56223 8.57487 9.19188 8.88418 8.88521C9.19348 8.57854 9.56522 8.42521 9.99939 8.42521C10.4351 8.42521 10.8065 8.57917 11.1138 8.88709C11.4211 9.195 11.5748 9.56743 11.5748 10.0044C11.5748 10.4413 11.4199 10.8123 11.11 11.1173C10.8002 11.4223 10.4277 11.5748 9.99272 11.5748ZM9.99459 17.1694C8.00723 17.1694 6.31209 16.4731 4.90918 15.0804C3.50626 13.6878 2.81341 11.9943 2.83064 10H4.5548C4.58591 11.5111 5.12626 12.7956 6.17584 13.8535C7.22543 14.9113 8.49848 15.4402 9.99501 15.4402C11.5106 15.4402 12.7961 14.9128 13.8517 13.8581C14.9074 12.8033 15.4352 11.5188 15.4352 10.0046C15.4352 8.49042 14.9074 7.20438 13.8517 6.14646C12.7961 5.08868 11.5106 4.55979 9.99501 4.55979C9.21543 4.55979 8.47432 4.72278 7.77168 5.04875C7.06918 5.37459 6.45202 5.83007 5.92022 6.41521H8.01001V8H2.87543V2.87542H4.45022V5.50896C5.13216 4.65327 5.9548 3.99299 6.91814 3.52813C7.88133 3.06313 8.90696 2.83063 9.99501 2.83063C10.9903 2.83063 11.9224 3.01952 12.7915 3.39729C13.6606 3.77507 14.4179 4.2866 15.0631 4.93188C15.7086 5.57715 16.2201 6.33438 16.5977 7.20354C16.9755 8.07271 17.1644 9.00493 17.1644 10.0002C17.1644 10.9955 16.9755 11.9276 16.5977 12.7967C16.2201 13.6657 15.7086 14.4229 15.0631 15.0681C14.4179 15.7134 13.6606 16.2249 12.7913 16.6027C11.9221 16.9805 10.9899 17.1694 9.99459 17.1694Z" fill="currentColor"></path></g></svg></button>
+            <button className="hikari-btn--icon" title="Collapse panel"><svg width="16" height="16" viewBox="0 0 15 15" fill="currentColor"><path d="M10.8138 9.58021V4.75854C10.8138 4.56521 10.7284 4.43236 10.5577 4.36C10.387 4.2875 10.2308 4.31514 10.0892 4.44292L7.8225 6.54292C7.64639 6.72278 7.55833 6.9325 7.55833 7.17208C7.55833 7.41181 7.64639 7.61972 7.8225 7.79583L10.0892 9.89583C10.2283 10.0236 10.3839 10.0504 10.5558 9.97625C10.7278 9.90208 10.8138 9.77007 10.8138 9.58021ZM1.625 14.3388C1.17472 14.3388 0.79132 14.1805 0.474792 13.864C0.158264 13.5474 0 13.164 0 12.7138V1.625C0 1.17472 0.158264 0.791319 0.474792 0.474791C0.79132 0.158263 1.17472 0 1.625 0H12.7138C13.164 0 13.5474 0.158263 13.864 0.474791C14.1805 0.791319 14.3388 1.17472 14.3388 1.625V12.7138C14.3388 13.164 14.1805 13.5474 13.864 13.864C13.5474 14.1805 13.164 14.3388 12.7138 14.3388H1.625ZM4.12958 12.6096V1.72917H1.72917V12.6096H4.12958ZM5.85875 12.6096H12.6096V1.72917H5.85875V12.6096Z" fill="currentColor"></path></svg></button>
+          </div>
+        </div>
+        <div className="hikari-navbar-right">
+          <div className="hikari-navbar-section">
+            <div className="hikari-nav-links">
+              <div className="hikari-nav-link hikari-nav-link--active"><span>Edit</span></div>
+              <div className="hikari-nav-link"><span>Preview</span></div>
+              <div className="hikari-nav-link"><span>Code</span></div>
+            </div>
+          </div>
+          <div className="hikari-navbar-section">
+            <div className="hikari-select">
+              <div className="select-label"><span className="page-icon"><svg width="16" height="16" viewBox="0 0 13 17" fill="currentColor"><path d="M10.6088 16.3388H1.72333C1.24417 16.3388 0.837153 16.1703 0.502292 15.8333C0.167431 15.4964 0 15.0885 0 14.6096V1.72917C0 1.25028 0.168472 0.842361 0.505417 0.505417C0.842361 0.168472 1.25028 0 1.72917 0H7.51937C7.74771 0 7.96528 0.0405561 8.17208 0.121667C8.37889 0.202639 8.57035 0.33118 8.74646 0.507291L11.8315 3.59229C12.0076 3.7684 12.1361 3.95986 12.2171 4.16667C12.2982 4.37347 12.3388 4.59104 12.3388 4.81938V14.6096C12.3388 15.0885 12.1702 15.4964 11.8331 15.8333C11.496 16.1703 11.0879 16.3388 10.6088 16.3388ZM10.6096 14.6096V4.81938L7.51937 1.72917H1.72917V14.6096H10.6096Z" fill="currentColor"></path></svg></span><span>Home</span></div>
+              <span className="select-arrow"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.06 5.72665L8 8.77999L4.94 5.72665L4 6.66665L8 10.6667L12 6.66665L11.06 5.72665Z"></path></svg></span>
+            </div>
+          </div>
+          <div className="hikari-navbar-section">
+            <button className="hikari-btn--icon" title="Live Test"><svg width="16" height="16" viewBox="0 0 13 19" fill="currentColor"><path d="M1.72917 18.3388C1.25028 18.3388 0.842361 18.1703 0.505417 17.8333C0.168472 17.4964 0 17.0885 0 16.6096V1.72917C0 1.20444 0.157014 0.785069 0.471042 0.471041C0.785069 0.157014 1.20444 0 1.72917 0H9.59958C10.0785 0 10.4864 0.168472 10.8233 0.505417C11.1603 0.842361 11.3288 1.25028 11.3288 1.72917V4.58458C11.6099 4.59792 11.8476 4.70847 12.0421 4.91625C12.2365 5.12389 12.3338 5.3716 12.3338 5.65938V7.63458C12.3338 7.92222 12.2365 8.17076 12.0421 8.38021C11.8476 8.58965 11.6099 8.70097 11.3288 8.71417V16.6096C11.3288 17.0885 11.1603 17.4964 10.8233 17.8333C10.4864 18.1703 10.0785 18.3388 9.59958 18.3388H1.72917ZM1.72417 16.6146H9.60458V1.72417H1.72417V16.6146ZM3.98917 15.515H7.34458C7.5882 15.515 7.79236 15.4319 7.95708 15.2656C8.12181 15.0995 8.20417 14.8955 8.20417 14.6535C8.20417 14.4116 8.12181 14.2073 7.95708 14.0406C7.79236 13.8741 7.5882 13.7908 7.34458 13.7908H3.98417C3.74056 13.7908 3.53639 13.8739 3.37167 14.04C3.20694 14.2061 3.12458 14.4101 3.12458 14.6521C3.12458 14.8942 3.20806 15.0985 3.375 15.265C3.54194 15.4317 3.74667 15.515 3.98917 15.515Z" fill="currentColor"></path></svg></button>
+            <button className="hikari-btn--icon" title="Download"><svg width="16" height="16" viewBox="0 0 24 24"><g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd"><g fill="currentColor"><path d="M13,13.1715729 L15.5355339,10.636039 L16.9497475,12.0502525 L13.4142136,15.5857864 L12,17 L7.05025253,12.0502525 L8.46446609,10.636039 L11,13.1715729 L11,2 L13,2 L13,13.1715729 Z M20,19 L20,15 L22,15 L22,19 L22,21 L2,21 L2,19 L2,15 L4,15 L4,19 L20,19 Z"></path></g></g></svg></button>
+            <button className="hikari-btn--primary">Publish</button>
+          </div>
+        </div>
+      </nav>
+
+      {/* ═══ MAIN CONTENT ═══ */}
+      <div className="flex flex-1 overflow-hidden min-h-0">
+        {/* Left Sidebar */}
+        <div className="w-80 min-w-[200px] max-w-[320px] flex-shrink bg-white border-r border-gray-200 flex flex-col">
+          <div className="p-4 border-b border-gray-200">
+            <h3 className="font-semibold text-gray-900 mb-3">Version History</h3>
+            <button onClick={toggleCompareMode} className={`w-full flex items-center gap-2 p-3 rounded-lg border transition-all ${compareMode ? "bg-gray-900 border-gray-900 text-white" : "bg-white border-gray-300 text-gray-700 hover:border-gray-400"}`}>
+              <IconGitCompare className="w-4 h-4" /><span className="text-sm font-medium">Compare Versions</span>
+              {compareMode && <IconCheck className="w-4 h-4 ml-auto" />}
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            {versions.map((version) => (
+              <VersionCard key={version.id} version={version} compareMode={compareMode}
+                isSelected={!compareMode && selectedVersion === version.id}
+                isFromVersion={compareMode && selectedOlderVersion === version.id}
+                isToVersion={compareMode && version.isCurrent}
+                onSelect={() => handleVersionClick(version.id)}
+                onRestore={() => handleRestoreVersion(version.id)} />
+            ))}
+          </div>
+        </div>
+
+        {/* Main Area */}
+        <div className="flex-1 flex overflow-hidden min-w-0">
+          {compareMode ? (
+            <div className="flex-1 flex flex-col min-h-0">
+              {/* Diff Controls Bar */}
+              <div style={{ backgroundColor: '#4a4c51' }} className="border-b border-gray-600 px-4 py-3 flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
+                <div className="flex items-center gap-4 min-w-0 flex-1">
+                  <span className="text-sm text-gray-300 flex-shrink-0">Comparing:</span>
+                  <div className="flex items-center gap-2 text-sm min-w-0 flex-1">
+                    <span className="px-3 py-1.5 bg-red-900 text-red-300 rounded border border-red-700 max-w-[150px] lg:max-w-xs truncate">{versions.find(v => v.id === selectedOlderVersion)?.title || "Version"}</span>
+                    <span className="text-gray-500 flex-shrink-0">{"\u2192"}</span>
+                    <span className="px-3 py-1.5 bg-green-900 text-green-300 rounded border border-green-700 max-w-[150px] lg:max-w-xs truncate">{currentVersion.title}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className="text-sm text-gray-400">View:</span>
+                  <div className="flex border border-gray-600 rounded overflow-hidden" style={{ backgroundColor: '#3a3d42' }}>
+                    <button className={`px-3 py-1 text-sm flex items-center gap-1.5 ${diffType === "layout" ? "bg-red-600 text-white" : "text-gray-300"}`} style={diffType !== "layout" ? { backgroundColor: 'transparent' } : {}} onClick={() => setDiffType("layout")}><IconLayout className="w-3.5 h-3.5" /> Layout</button>
+                    <button className={`px-3 py-1 text-sm flex items-center gap-1.5 border-l border-gray-600 ${diffType === "code" ? "bg-red-600 text-white" : "text-gray-300"}`} style={diffType !== "code" ? { backgroundColor: 'transparent' } : {}} onClick={() => setDiffType("code")}><IconCode2 className="w-3.5 h-3.5" /> Code</button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Diff Content */}
+              {diffType === "layout" ? (
+                <div className="flex-1 overflow-auto p-8">
+                  <div className="grid grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    <div>
+                      <div className="mb-3 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-red-500"></div><span className="text-sm font-medium text-gray-300">{versions.find(v => v.id === selectedOlderVersion)?.title}</span></div>
+                      <div className="rounded-2xl p-4" style={{ background: '#4a4c51' }}><PhonePreview versionId={selectedOlderVersion} /></div>
+                    </div>
+                    <div>
+                      <div className="mb-3 flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-green-500"></div><span className="text-sm font-medium text-gray-300">{currentVersion.title}</span></div>
+                      <div className="rounded-2xl p-4" style={{ background: '#4a4c51' }}><PhonePreview versionId={0} /></div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-1 flex overflow-hidden min-h-0 min-w-0">
+                  <div className="flex-1 overflow-auto bg-gray-900">
+                    <div className="text-gray-300 font-mono text-xs leading-5">
+                      {versionDiffs[selectedOlderVersion]?.lines.map((line, idx) => (
+                        line.type === "collapsed"
+                          ? <CollapsedLines key={'c-' + line.startLine} startLine={line.startLine} count={line.count} lines={line.lines} />
+                          : <CodeLine key={line.number || idx} number={line.number} content={line.content} type={line.type} highlight={line.highlight} annotation={line.annotation} />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Change Summary Panel */}
+                  <div className={`relative transition-all duration-300 ${changeSummaryOpen ? 'w-80 xl:block hidden' : 'w-0'}`}>
+                    {changeSummaryOpen && (
+                      <div className="w-80 bg-orange-100 border-l border-orange-200 overflow-y-auto flex flex-col h-full hidden xl:flex">
+                        <div className="sticky top-0 bg-white border-b border-orange-200 px-4 py-3 flex items-center justify-between z-10">
+                          <h3 className="font-semibold text-gray-900">Changes Summary</h3>
+                        </div>
+                        <div className="flex-1 p-4 space-y-4">
+                          {(() => {
+                            const summary = versionChangeSummaries[selectedOlderVersion] || [];
+                            const addedCount = summary.reduce((sum, group) => sum + group.changes.filter(c => c.type === 'added').length, 0);
+                            const removedCount = summary.reduce((sum, group) => sum + group.changes.filter(c => c.type === 'removed').length, 0);
+                            const modifiedCount = summary.reduce((sum, group) => sum + group.changes.filter(c => c.type === 'modified').length, 0);
+                            return (
+                              <>
+                                <div className="grid grid-cols-3 gap-2">
+                                  <div className="bg-green-50 border border-green-200 rounded p-2 text-center"><div className="text-xl font-bold text-green-700">+{addedCount}</div><div className="text-xs text-green-600">Added</div></div>
+                                  <div className="bg-red-50 border border-red-200 rounded p-2 text-center"><div className="text-xl font-bold text-red-700">-{removedCount}</div><div className="text-xs text-red-600">Removed</div></div>
+                                  <div className="bg-yellow-50 border border-yellow-200 rounded p-2 text-center"><div className="text-xl font-bold text-yellow-700">{modifiedCount}</div><div className="text-xs text-yellow-600">Modified</div></div>
+                                </div>
+                                <div className="space-y-2">
+                                  {summary.map((group, idx) => (
+                                    <ChangeGroup key={idx} title={group.title} changes={group.changes} />
+                                  ))}
+                                </div>
+                              </>
+                            );
+                          })()}
+                        </div>
+                      </div>
+                    )}
+                    <button onClick={() => setChangeSummaryOpen(!changeSummaryOpen)} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full bg-orange-100/80 hover:bg-orange-200/80 text-orange-500 p-1 rounded-l transition-colors border border-orange-200/50 shadow-sm" title={changeSummaryOpen ? "Hide Changes Summary" : "Show Changes Summary"}>
+                      <IconChevronRight className={`w-3 h-3 transition-transform ${changeSummaryOpen ? '' : 'rotate-180'}`} />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="rounded-2xl p-6" style={{ background: '#4a4c51' }}><PhonePreview versionId={selectedVersion} /></div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(ThunkableMockup));
+</script>
+</body>
+</html>
