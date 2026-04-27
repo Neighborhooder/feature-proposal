@@ -1,0 +1,2992 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hikari Multi-Element Editing — Interactive Mockups</title>
+    <style>
+      /* ---------- Design tokens (verified against apps/frontend/src/style/_variables.scss) ---------- */
+      :root {
+        /* Neutral scale — exact values from _variables.scss. */
+        --neutral-light-100: #fafbfd;  /* $newNeutralLight100 */
+        --neutral-light-200: #f0f1f4;  /* $newNeutralLight200 */
+        --neutral-light-300: #f1f3f8;  /* $newNeutralLight300 */
+        --neutral-light-400: #bdc5d6;  /* $newNeutralLight400 */
+        --neutral-light-500: #a4a9b2;
+        --neutral-light-600: #74767d;
+        --neutral-dark-400: #d0d7e7;   /* $newNeutralDark400 */
+        --neutral-dark-500: #bbc2d0;
+        --neutral-dark-600: #697288;   /* $newNeutralDark600 */
+        --neutral-dark-700: #53565c;   /* $newNeutralDark700 */
+        --neutral-dark-800: #3e4045;   /* $newNeutralDark800 (CORRECTED) */
+        --neutral-dark-900: #151517;   /* $newNeutralDark900 (CORRECTED) */
+
+        /* Hikari brand tokens (exact from _variables.scss). */
+        --hikari-dark: #1d1c22;                 /* $hikari-dark */
+        --hikari-dark-hover: #343338;           /* mix(white, $hikari-dark, 10%) */
+        --thunkable-purple: #5d7afc;            /* $thunkable-purple — brand primary */
+        --lavender: #e8ebff;                    /* $lavender */
+        --chip-active: #5b5fef;                 /* $chipActive — tab active, ink bar */
+        --chip-active-bg: #eef0ff;              /* $chipActiveBackground */
+        --chip-active-border: #8b8ef5;          /* $chipActiveBorder */
+        --domain-mode: #8a38f5;                 /* $domainMode — AI/purple accent */
+        --domain-mode-soft: #f4ecfe;
+        --success-50: #ecf7ec;
+        --success-300: #a6d8a6;
+        --danger-400: #ff7475;
+        --danger-500: #e34546;
+
+        /* Chrome + layout */
+        --stage-bg: #4a4c51;     /* real Hikari Edit canvas bg (matches reference mockup) */
+        --panel-bg: #ffffff;
+        --chrome-bg: #ffffff;
+        --chrome-border: #e6e8ee;
+        --page-bg: #fafbfd;
+
+        /* Brand accents kept for the user's calculator app inside the preview. */
+        --accent: #ff7a33;
+        --accent-soft: #ffe6d3;
+        --brand-warm: #f9dcb4;
+        --brand-warm-deep: #6b2a19;
+        --brand-warm-card: #f5d9a6;
+        --mixed-yellow: #fff4d1;
+        --mixed-yellow-border: #f2c971;
+
+        /* Feature accents (this mockup's three logical states).
+           Mapped onto real Hikari tokens so they feel native. */
+        --selected-blue: var(--chip-active);
+        --selected-blue-soft: var(--chip-active-bg);
+        --group-purple: var(--domain-mode);
+        --group-purple-soft: var(--domain-mode-soft);
+        --template-teal: #0b7285;
+        --template-teal-soft: #e3f1f4;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: 'Graphik Web', -apple-system, BlinkMacSystemFont, 'Inter',
+          'Segoe UI', Roboto, sans-serif;
+        color: var(--neutral-dark-800);
+        background: var(--page-bg);
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Sticky topbar — mimics hikari-navbar: 60px, white, fixed top, 1px divider. */
+      .topbar {
+        position: sticky; top: 0; z-index: 100;
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: saturate(1.4) blur(8px);
+        border-bottom: 1px solid var(--neutral-light-300);
+        padding: 12px 48px;
+      }
+
+      .topbar-inner {
+        max-width: 1680px; margin: 0 auto;
+        display: flex; align-items: center; gap: 16px;
+      }
+
+      /* hikari-navbar-title: 16px/600, $newNeutralDark800. */
+      .topbar h1 {
+        margin: 0;
+        font-size: 16px; font-weight: 600;
+        letter-spacing: 0;
+        color: var(--neutral-dark-800);
+      }
+
+      .topbar h1 .muted { color: var(--neutral-dark-600); font-weight: 400; }
+
+      /* Badge uses Hikari version-title pattern. */
+      .topbar .live-badge {
+        background: var(--chip-active-bg);
+        color: var(--chip-active);
+        font-size: 11px; font-weight: 600;
+        padding: 2px 8px; border-radius: 4px;
+        letter-spacing: 0;
+      }
+
+      /* Container-tab group (hikari-nav-links pattern): gray bg, white active card. */
+      .primary-nav {
+        display: inline-flex;
+        gap: 2px;
+        padding: 2px;
+        border-radius: 10px;
+        background-color: var(--neutral-light-200);
+        box-shadow: 1px 1px 4px 0 rgba(0, 0, 0, 0.01) inset;
+        margin-left: auto;
+      }
+
+      .primary-nav button {
+        border: none;
+        height: 28px;
+        min-width: 48px;
+        padding: 2px 10px;
+        background: transparent;
+        font-family: inherit;
+        font-size: 14px; font-weight: 500;
+        color: var(--neutral-dark-800);
+        cursor: pointer;
+        display: inline-flex; align-items: center; gap: 6px;
+        border-radius: 8px;
+        transition: background 0.12s, color 0.12s;
+      }
+
+      .primary-nav button:hover:not(.active) {
+        color: var(--hikari-dark);
+      }
+
+      .primary-nav button.active {
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        color: var(--hikari-dark);
+        font-weight: 500;
+      }
+
+      .primary-nav button .pill {
+        font-size: 11px; padding: 1px 6px; border-radius: 6px;
+        background: rgba(255, 255, 255, 0.7);
+        color: var(--neutral-dark-700);
+        font-weight: 600;
+      }
+
+      .primary-nav button.active .pill {
+        background: var(--neutral-light-200);
+        color: var(--hikari-dark);
+      }
+
+      /* ---------- Page (approach) ---------- */
+      .approach-page {
+        display: none;
+        max-width: 1680px; margin: 0 auto;
+        padding: 28px 48px 64px;
+      }
+
+      .approach-page.visible { display: block; }
+
+      .intro { margin-bottom: 16px; }
+
+      .intro-head {
+        display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px;
+      }
+
+      /* Matches hikari-navbar-version-title: $lavender bg, $hikari-dark text, 4px radius. */
+      .intro-head .big-pill {
+        background: var(--lavender); color: var(--hikari-dark);
+        font-size: 11px; font-weight: 600;
+        letter-spacing: 0.04em;
+        padding: 4px 11px; border-radius: 4px;
+      }
+
+      .intro-head h2 {
+        margin: 0; font-size: 20px; font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+
+      .intro-head .tagline { color: var(--neutral-dark-600); font-size: 13px; }
+
+      .summary-grid {
+        display: grid; grid-template-columns: 1fr 1fr 1fr;
+        gap: 14px; margin-top: 14px;
+        font-size: 13px; line-height: 1.5;
+      }
+
+      /* Summary cards — hikari-message-response-metadata-summary pattern:
+         $newNeutralLight100 bg, $newNeutralLight400 border, 6px radius. */
+      .summary-card {
+        background: var(--neutral-light-100);
+        border: 1px solid var(--neutral-light-400);
+        border-radius: 6px;
+        padding: 12px 14px;
+        color: var(--neutral-dark-700);
+      }
+
+      .summary-card .k {
+        font-size: 12px;
+        letter-spacing: 0;
+        color: var(--neutral-dark-800);
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+
+      /* hikari-clarification-chips card: #eeeeff bg, #c7d2fe border, $chipActive text. */
+      .try-it {
+        background: #eeeeff;
+        border: 1px solid #c7d2fe;
+        border-radius: 8px;
+        padding: 12px;
+        margin: 16px 0;
+        font-size: 13px;
+        line-height: 20px;
+        color: var(--neutral-dark-700);
+        display: flex; gap: 12px; align-items: flex-start;
+      }
+
+      .try-it .tag {
+        background: var(--chip-active); color: #fff;
+        font-size: 11px; font-weight: 600;
+        letter-spacing: 0.04em;
+        padding: 2px 8px; border-radius: 12px;
+        flex-shrink: 0;
+      }
+
+      .try-it code {
+        background: #fff;
+        border: 1px solid #a5b4fc;
+        color: var(--chip-active);
+        padding: 2px 6px; border-radius: 4px;
+        font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 11px;
+        font-weight: 500;
+      }
+
+      /* ---------- Scenario tabs (Hikari container-tab pattern) ---------- */
+      .scenario-tabs {
+        display: inline-flex;
+        background: var(--neutral-light-200);
+        border-radius: 10px; padding: 2px;
+        margin: 24px 0 16px;
+        font-size: 14px;
+      }
+
+      .scenario-tabs button {
+        border: none; background: transparent;
+        padding: 4px 12px;
+        height: 28px;
+        font-size: 14px; font-weight: 500;
+        color: var(--neutral-dark-800);
+        border-radius: 8px; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 8px;
+        font-family: inherit;
+      }
+
+      /* Matches hikari-nav-link--active: white card, 8px radius, #1d1c22 / 500. */
+      .scenario-tabs button.active {
+        background: #fff;
+        color: var(--hikari-dark);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        font-weight: 500;
+      }
+
+      .scenario-tabs button .tag {
+        font-size: 10px; padding: 2px 6px; border-radius: 999px;
+        background: var(--neutral-light-300); color: var(--neutral-dark-600);
+        font-weight: 600;
+      }
+
+      .scenario-tabs button.active .tag.static {
+        background: var(--selected-blue-soft); color: var(--selected-blue);
+      }
+
+      .scenario-tabs button.active .tag.dynamic {
+        background: var(--template-teal-soft); color: var(--template-teal);
+      }
+
+      .scenario { display: none; }
+      .scenario.visible { display: block; }
+
+      /* ---------- Editor frame (real Hikari layout: 60px navbar, calc(100vh-60px) body) ---------- */
+      .editor {
+        height: 820px;
+        background: var(--chrome-bg);
+        border: 1px solid var(--chrome-border);
+        border-radius: 12px;
+        overflow: hidden;
+        display: grid;
+        grid-template-rows: 60px 1fr;
+        box-shadow:
+          0 6px 24px -14px rgba(20, 22, 30, 0.25),
+          0 1px 0 rgba(20, 22, 30, 0.04);
+      }
+
+      /* ============================================================
+         HIKARI NAVBAR — lifted verbatim from the reference mockup.
+         Uses the exact hikari-* class names so the styles match 1:1.
+         ============================================================ */
+      .hikari-navbar {
+        position: relative;
+        height: 60px;
+        background-color: #ffffff;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 8px;
+        font-family: 'Graphik Web', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        line-height: 22px;
+        color: #3e4045;
+        flex-shrink: 0;
+      }
+      .hikari-navbar-left {
+        width: 500px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .hikari-navbar-right {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        flex: 1;
+      }
+      .hikari-navbar-section {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        padding: 0 12px;
+        height: 28px;
+      }
+      .hikari-navbar-logo {
+        cursor: pointer;
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+        align-items: center;
+      }
+      .hikari-navbar-logo img {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+      }
+      .hikari-navbar-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #3e4045;
+      }
+      .hikari-project-name {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 4px 8px;
+        gap: 4px;
+        height: 28px;
+        background-color: #f0f1f4;
+        color: #3e4045;
+        border-radius: 8px;
+        font-weight: 500;
+        margin-left: 12px;
+        max-width: 270px;
+        overflow: hidden;
+        cursor: pointer;
+      }
+      .hikari-project-name-input {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        min-width: 0;
+        flex: 1;
+        background-color: transparent;
+        border: 1px solid transparent;
+        height: 22px;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 500;
+        color: #3e4045;
+        outline: none;
+        padding: 0;
+        width: 200px;
+      }
+      .hikari-project-name .caret-icon {
+        flex-shrink: 0;
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #3e4045;
+      }
+      .hikari-btn--icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        border: none;
+        border-radius: 8px;
+        background-color: #fafbfd;
+        color: #53565c;
+        cursor: pointer;
+        padding: 6px;
+        font-size: 14px;
+        transition: background-color 0.15s;
+      }
+      .hikari-btn--icon:hover {
+        background-color: #f0f1f4;
+        color: #3e4045;
+      }
+      .hikari-btn--icon.active {
+        background-color: #f0f1f4;
+        color: #3e4045;
+      }
+      .hikari-btn--icon.active.colored {
+        background-color: #e8ebff;
+        color: #1d1c22;
+      }
+      .hikari-nav-links {
+        display: flex;
+        flex-direction: row;
+        gap: 2px;
+        padding: 2px;
+        align-items: center;
+        border-radius: 10px;
+        background-color: #f0f1f4;
+        box-shadow: 1px 1px 4px 0 rgba(0, 0, 0, 0.01) inset;
+      }
+      .hikari-nav-link {
+        border: none;
+        height: 28px;
+        min-width: 48px;
+        padding: 2px 6px;
+        display: grid;
+        place-items: center;
+        background-color: #f0f1f4;
+        font-family: inherit;
+        color: #3e4045;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 400;
+        white-space: nowrap;
+      }
+      .hikari-nav-link--active {
+        border-radius: 8px;
+        background-color: #ffffff;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+        color: #1d1c22;
+        font-weight: 500;
+      }
+      .hikari-select {
+        font-family: inherit;
+        color: #3e4045;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 22px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid #bdc5d6;
+        display: flex;
+        align-items: center;
+        padding: 0 8px 0 12px;
+        gap: 10px;
+        background: #ffffff;
+        cursor: pointer;
+        min-width: 120px;
+      }
+      .hikari-select .select-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .hikari-select .select-label .page-icon {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        color: #53565c;
+      }
+      .hikari-select .select-arrow {
+        width: 17px;
+        color: #3e4045;
+        font-weight: 500;
+        flex-shrink: 0;
+      }
+      .hikari-btn--primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 28px;
+        min-width: 28px;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 8px;
+        background-color: #1d1c22;
+        color: #ffffff;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 22px;
+        cursor: pointer;
+        box-shadow: none;
+        white-space: nowrap;
+      }
+      .hikari-btn--primary:hover {
+        background-color: #333239;
+      }
+
+      /* Real Hikari layout: Chat = 494px (Layout.scss .hikari-layout-content--chat-open margin-left),
+         StylePanel = 320px (only visible when something is selected — matches Antd Drawer pattern).
+         Use .body--no-panel to hide the panel column entirely. */
+      .body {
+        display: grid;
+        grid-template-columns: 494px 1fr 320px;
+        height: 100%; min-height: 0;
+      }
+
+      .body--no-panel {
+        grid-template-columns: 494px 1fr;
+      }
+
+      .body--no-panel .panel { display: none; }
+
+      .chat-col {
+        border-right: 1px solid var(--chrome-border);
+        display: flex; flex-direction: column;
+        background: #fff; min-height: 0;
+        font-family: 'Graphik Web', inherit;
+      }
+
+      .chat-tabs {
+        display: flex; gap: 20px;
+        padding: 14px 16px 0;
+        font-size: 14px; font-weight: 500;
+        color: var(--neutral-dark-600);
+        border-bottom: 1px solid var(--neutral-light-300);
+      }
+
+      /* Active tab uses $chipActive for both text and ink bar (Chat.scss). */
+      .chat-tabs .active {
+        color: var(--chip-active);
+        border-bottom: 2px solid var(--chip-active);
+        padding-bottom: 10px;
+        font-weight: 500;
+      }
+
+      .chat-tabs > span:not(.active) { padding-bottom: 10px; }
+      .chat-tabs > span:not(.active):hover { color: var(--neutral-dark-800); }
+
+      .chat-actions {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--neutral-light-300);
+        display: flex; justify-content: flex-end;
+      }
+
+      /* hikari-clear-chat-button: transparent, 1px $newNeutralDark400 border, 6px radius, 12/500. */
+      .chat-actions button {
+        padding: 3px 10px;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 20px;
+        background: transparent;
+        border: 1px solid var(--neutral-dark-400);
+        border-radius: 6px;
+        color: var(--neutral-dark-700);
+        cursor: pointer; font-family: inherit;
+      }
+
+      .chat-actions button:hover { color: var(--neutral-dark-800); border-color: var(--neutral-dark-600); }
+
+      .chat-body {
+        flex: 1;
+        padding: 16px;
+        overflow-y: auto;
+        font-size: 14px; line-height: 22px;
+        color: var(--neutral-dark-700);
+      }
+
+      /* hikari-message-list date separator: centered 12/500 label with horizontal rules. */
+      .chat-divider {
+        display: flex; align-items: center; gap: 10px;
+        font-size: 12px; font-weight: 500;
+        color: var(--neutral-dark-500);
+        margin: 4px 0 14px;
+      }
+
+      .chat-divider::before,
+      .chat-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--neutral-light-300);
+      }
+
+      /* hikari-user-message bubble: right-aligned, $newNeutralLight200 bg, 8px radius,
+         0 1px 2px shadow, weight 500. */
+      .chat-user {
+        display: flex; justify-content: flex-end;
+        margin: 6px 0 12px;
+      }
+
+      .chat-user-bubble {
+        max-width: 82%;
+        background: var(--neutral-light-200);
+        color: var(--neutral-dark-800);
+        padding: 9px 12px;
+        border-radius: 8px;
+        font-size: 14px; font-weight: 500;
+        line-height: 20px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      }
+
+      /* hikari-message-response: assistant reply container. */
+      .chat-response {
+        margin: 4px 0 14px;
+        display: flex; flex-direction: column; gap: 10px;
+      }
+
+      .chat-response-metadata-summary {
+        background: var(--neutral-light-100);
+        border: 1px solid var(--neutral-light-400);
+        border-radius: 6px;
+        padding: 10px 12px;
+        font-size: 13px; line-height: 19px;
+        color: var(--neutral-dark-700);
+      }
+
+      .chat-response-metadata-summary .title {
+        display: flex; align-items: center; gap: 6px;
+        font-weight: 500;
+        color: var(--neutral-dark-800);
+        margin-bottom: 4px;
+      }
+
+      .chat-response-metadata-summary .check {
+        color: var(--success-300);
+        font-size: 12px;
+      }
+
+      .chat-response-actions {
+        display: flex; gap: 8px;
+      }
+
+      .chat-response-actions button {
+        height: 28px;
+        padding: 0 12px;
+        font-size: 12px; font-weight: 500;
+        border-radius: 8px;
+        cursor: pointer; font-family: inherit;
+      }
+
+      .chat-response-actions .show-preview {
+        background: var(--hikari-dark); color: #fff;
+        border: 1px solid var(--hikari-dark);
+      }
+
+      .chat-response-actions .show-preview:hover { background: var(--hikari-dark-hover); }
+
+      .chat-response-actions .show-code {
+        background: #fff;
+        color: var(--neutral-dark-700);
+        border: 1px solid var(--neutral-light-400);
+      }
+
+      .chat-response-actions .show-code:hover { background: var(--neutral-light-200); }
+
+      /* hikari-message-response-metadata: token usage pill at the bottom of the response. */
+      .chat-token-pill {
+        align-self: flex-start;
+        background: var(--neutral-light-100);
+        color: var(--neutral-dark-500);
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 11px; font-weight: 500;
+        font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+        display: inline-flex; align-items: center; gap: 6px;
+        border: 1px solid var(--neutral-light-300);
+      }
+
+      /* hikari-message-step style: 14px/500, $newNeutralDark600 text. */
+      .chat-log-line {
+        color: var(--neutral-dark-600);
+        font-weight: 500;
+        margin: 8px 0;
+        font-size: 13px;
+        line-height: 20px;
+        display: flex; gap: 8px;
+        align-items: flex-start;
+      }
+
+      .chat-log-line .dot {
+        color: var(--success-300);
+        flex-shrink: 0;
+        margin-top: 3px;
+        font-size: 9px;
+      }
+
+      /* md-code-inline: 1px $newNeutral200 border, $newNeutral100 bg, JetBrains Mono. */
+      .chat-log-line code {
+        background: #f0f1f4;
+        color: var(--neutral-dark-700);
+        padding: 2px 4px;
+        border-radius: 5px;
+        border: 1px solid #e4e6ec;
+        font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 11px;
+        line-height: 1.3;
+      }
+
+      .chat-log-line.waiting {
+        color: var(--neutral-dark-600); font-style: italic;
+        opacity: 0.7;
+      }
+
+      /* Hikari chat input wrapper (hikari-chat-input-wrapper):
+         0.75px $newNeutralLight400 border, 24px radius, 12px padding,
+         sits above the panel flush (no top border divider). */
+      .chat-prompt {
+        padding: 0;
+        flex-shrink: 0;
+      }
+
+      .chat-prompt-inner {
+        margin: 12px;
+        padding: 12px;
+        border-radius: 24px;
+        border: 0.75px solid var(--neutral-light-400);
+        background: #fff;
+        transition: border-color 0.15s;
+      }
+
+      .chat-prompt-inner:focus-within { border-color: var(--domain-mode); }
+
+      .chat-prompt .input {
+        padding: 0;
+        margin-bottom: 8px;
+        color: var(--neutral-dark-500);
+        font-size: 14px;
+        background: transparent;
+        border: none;
+      }
+
+      .chat-prompt .actions {
+        display: flex; justify-content: space-between;
+        align-items: center;
+        height: 24px;
+        font-size: 12px;
+        color: var(--neutral-dark-600);
+      }
+
+      /* Hikari primary btn: 28px, 8px radius, $hikari-dark. */
+      .chat-prompt .send {
+        width: 28px; height: 28px;
+        border-radius: 8px;
+        background: var(--hikari-dark); color: #fff;
+        display: grid; place-items: center;
+        font-size: 12px;
+        cursor: pointer;
+      }
+
+      .chat-prompt .send:hover { background: var(--hikari-dark-hover); }
+
+      /* ---------- Stage & phones ---------- */
+      .stage {
+        background: var(--stage-bg);
+        position: relative;
+        display: grid; place-items: center;
+        overflow: hidden;
+        cursor: default;
+      }
+
+      /* Phone bezel: black outer shell with 12px padding (matches reference — bg-black
+         rounded-[3rem] p-3 shadow-2xl). Houses the inner .phone content. */
+      .phone-bezel {
+        background: #000;
+        border-radius: 44px;
+        padding: 10px;
+        box-shadow: 0 20px 40px -14px rgba(0, 0, 0, 0.5);
+        display: inline-block;
+      }
+
+      /* Inner phone face — holds the actual app content, 32px radius to sit inside bezel. */
+      .phone {
+        width: 320px; height: 568px;
+        background: var(--brand-warm);
+        border-radius: 34px;
+        padding: 28px 18px 22px;
+        position: relative;
+        display: flex; flex-direction: column;
+        overflow: hidden;
+      }
+
+      /* hikari-phone-preview__bottom-bar: 116px × 4px, $newNeutralDark900, no opacity. */
+      .phone::after {
+        content: '';
+        position: absolute;
+        bottom: 6px; left: 50%;
+        transform: translateX(-50%);
+        width: 100px; height: 4px;
+        background: var(--neutral-dark-900);
+        border-radius: 4px;
+        opacity: 0.4;
+      }
+
+      .phone-title {
+        color: var(--brand-warm-deep);
+        font-size: 16px; font-weight: 700;
+        margin: 0 0 2px;
+      }
+
+      .phone-subtitle {
+        color: var(--brand-warm-deep);
+        opacity: 0.7; font-size: 10px;
+        margin: 0 0 10px;
+      }
+
+      /* Calculator */
+      .calc-title {
+        text-align: center;
+        color: var(--brand-warm-deep);
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        margin: 0 0 10px;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
+      .calc-display {
+        background: rgba(255, 255, 255, 0.55);
+        border-radius: 12px;
+        height: 96px;
+        display: flex; align-items: center; justify-content: flex-end;
+        padding: 0 18px;
+        color: var(--brand-warm-deep);
+        font-size: 34px; font-weight: 600;
+      }
+
+      /* Any selectable element on the phone (Text or Button) picks up this cursor. */
+      .calc-title[data-element-id],
+      .calc-display[data-element-id] {
+        cursor: pointer;
+        transition: box-shadow 0.12s;
+      }
+
+      .calc-title[data-element-id]:hover,
+      .calc-display[data-element-id]:hover {
+        box-shadow: 0 0 0 2px rgba(91, 124, 255, 0.4);
+      }
+
+      /* Text selection outline — matches the Button .selected blue ring. */
+      .calc-title.selected,
+      .calc-display.selected {
+        box-shadow: 0 0 0 2px var(--selected-blue);
+      }
+
+      .calc-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-top: 10px;
+        flex: 1;
+      }
+
+      .key {
+        border-radius: 10px;
+        display: grid; place-items: center;
+        font-weight: 600; font-size: 16px;
+        background: var(--brand-warm-card);
+        color: var(--brand-warm-deep);
+        border: 2px solid transparent;
+        position: relative;
+        user-select: none;
+        transition: border-color 0.1s, background 0.15s, border-radius 0.15s, height 0.15s;
+      }
+
+      .key[data-element-id] { cursor: pointer; }
+      .key[data-element-id]:hover { border-color: rgba(91, 124, 255, 0.4); }
+
+      .key.op { background: #6b2a19; color: #f5d9a6; }
+      .key.c { background: #e8ebf5; color: var(--brand-warm-deep); }
+      .key.eq { background: var(--accent); color: #fff; }
+
+      .key.selected { border-color: var(--selected-blue); border-style: solid; border-width: 2px; }
+      .key.group-selected { border-color: var(--group-purple); border-style: solid; border-width: 2px; }
+
+      .key .badge {
+        position: absolute; top: -6px; right: -6px;
+        font-size: 9px; padding: 2px 5px;
+        background: var(--selected-blue); color: #fff;
+        border-radius: 999px; font-weight: 700;
+        z-index: 2;
+      }
+
+      .key .badge.group { background: var(--group-purple); }
+
+      .key .anchor-dot {
+        position: absolute;
+        bottom: -5px; left: 50%;
+        transform: translateX(-50%);
+        width: 7px; height: 7px;
+        background: #fff; border-radius: 50%;
+        border: 2px solid var(--selected-blue);
+      }
+
+      .key .anchor-dot.group { border-color: var(--group-purple); }
+
+      .key .override-dot {
+        position: absolute; top: -4px; right: -4px;
+        width: 8px; height: 8px;
+        background: var(--group-purple);
+        border: 2px solid #fff;
+        border-radius: 50%;
+        box-sizing: content-box;
+      }
+
+      /* Events list */
+      .events-list {
+        margin-top: 4px;
+        overflow-y: auto;
+        flex: 1;
+        display: flex; flex-direction: column; gap: 8px;
+      }
+
+      .event-card {
+        background: rgba(255, 255, 255, 0.65);
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        cursor: pointer;
+        transition: outline-color 0.12s, border-radius 0.15s;
+      }
+
+      .event-card[data-element-id]:hover { outline: 2px solid rgba(91, 124, 255, 0.3); outline-offset: 1px; }
+      .event-card.selected { outline: 2px solid var(--selected-blue); outline-offset: 1px; }
+      .event-card.group-selected { outline: 2px solid var(--group-purple); outline-offset: 1px; }
+
+      .event-card-image { height: 70px; background-size: cover; background-position: center; }
+      .event-card-image.a { background: linear-gradient(140deg, #a57b46 0%, #6b2a19 60%, #3d1608 100%); }
+      .event-card-image.b { background: linear-gradient(140deg, #7aaa8f 0%, #2f5d42 100%); }
+      .event-card-image.c { background: linear-gradient(140deg, #d0a276 0%, #8a5a39 100%); }
+
+      .event-card-body { padding: 7px 10px 9px; }
+
+      .event-card-title {
+        color: var(--brand-warm-deep);
+        font-size: 10px; font-weight: 700;
+        line-height: 1.25; margin: 0 0 3px;
+      }
+
+      .event-card-meta {
+        color: var(--brand-warm-deep); opacity: 0.75;
+        font-size: 8px; line-height: 1.3;
+        display: flex; align-items: center; gap: 4px;
+      }
+
+      .event-card-meta .ic { color: var(--accent); font-size: 9px; }
+
+      .event-card .tmpl-badge {
+        position: absolute; top: 4px; right: 4px;
+        font-size: 8px; padding: 2px 6px;
+        background: var(--template-teal); color: #fff;
+        border-radius: 999px; font-weight: 700;
+        letter-spacing: 0.04em; text-transform: uppercase;
+      }
+
+      .event-card .tmpl-badge.group { background: var(--group-purple); }
+
+      .future-indicator {
+        border: 1.5px dashed var(--template-teal);
+        border-radius: 10px;
+        padding: 10px; text-align: center;
+        color: var(--template-teal);
+        font-size: 9px; font-weight: 600;
+        background: rgba(15, 155, 142, 0.06);
+        margin-top: 4px;
+      }
+
+      .future-indicator.group {
+        border-color: var(--group-purple);
+        color: var(--group-purple);
+        background: rgba(139, 92, 246, 0.06);
+      }
+
+      .phone-tabbar {
+        display: flex; justify-content: space-around;
+        border-top: 1px solid rgba(107, 42, 25, 0.15);
+        padding-top: 6px; margin-top: 6px;
+      }
+
+      .phone-tabbar .tab {
+        color: var(--brand-warm-deep);
+        font-size: 9px;
+        display: flex; flex-direction: column; align-items: center;
+        gap: 2px; opacity: 0.8;
+      }
+
+      .phone-tabbar .tab .ic {
+        width: 16px; height: 16px; border-radius: 50%;
+        background: var(--accent); color: #fff;
+        font-size: 9px;
+        display: grid; place-items: center;
+      }
+
+      .phone-tabbar .tab.active { opacity: 1; }
+
+      /* hikari-floating-bar: white bg, 36px, 12px radius, $newNeutralDark600 text,
+         floats above the stage. */
+      .selection-pill {
+        position: absolute;
+        top: 16px; left: 50%;
+        transform: translateX(-50%);
+        background: #fff;
+        color: var(--neutral-dark-600);
+        padding: 4px 4px 4px 12px;
+        height: 36px;
+        border-radius: 12px;
+        font-size: 13px; font-weight: 500;
+        display: flex; align-items: center; gap: 6px;
+        box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.2);
+        z-index: 3;
+      }
+
+      /* "N (Buttons) selected" layout — count + chip + suffix sit tightly together,
+         then a wider gap before the Clear button. */
+      .selection-pill .count { font-variant-numeric: tabular-nums; color: var(--neutral-dark-800); }
+      .selection-pill .suffix { color: var(--neutral-dark-600); }
+      .selection-pill button { margin-left: 6px; }
+
+      /* Chip uses $chipActive tokens (hikari-clarification-chips pattern). */
+      .selection-pill .chip {
+        background: var(--chip-active); color: #fff;
+        padding: 2px 8px; border-radius: 10px;
+        font-size: 12px; font-weight: 600;
+        letter-spacing: 0.02em;
+      }
+
+      .selection-pill .chip.group { background: var(--domain-mode); }
+      .selection-pill .chip.template { background: var(--template-teal); }
+
+      /* hikari-btn--secondary-light: white bg, $newNeutralLight400 border, $newNeutralDark700. */
+      .selection-pill button {
+        height: 28px;
+        padding: 0 10px;
+        font-size: 12px; font-weight: 500;
+        color: var(--neutral-dark-700);
+        background: #fff;
+        border: 1px solid var(--neutral-light-400);
+        border-radius: 8px;
+        cursor: pointer; font-family: inherit;
+      }
+
+      .selection-pill button:hover {
+        background: var(--neutral-light-200);
+      }
+
+      .stage-banner {
+        position: absolute;
+        top: 62px; left: 50%;
+        transform: translateX(-50%);
+        background: #fffaed;
+        border: 1px solid #f2c971;
+        color: #865300;
+        padding: 8px 14px; border-radius: 10px;
+        font-size: 11px; font-weight: 500;
+        max-width: 280px; text-align: center;
+        line-height: 1.4; z-index: 2;
+        box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.15);
+      }
+
+      .stage-banner b { color: #5c3900; }
+
+      /* ---------- Style panel (Hikari: 320px, 16px/600 header, light dividers) ---------- */
+      .panel {
+        border-left: 1px solid var(--neutral-light-300);
+        background: #fff;
+        display: flex; flex-direction: column;
+        min-height: 0;
+        overflow-y: auto;
+        box-shadow: -5px 0 14px -12px rgba(0, 0, 0, 0.1);
+      }
+
+      .panel-header {
+        padding: 16px;
+        border-bottom: 1px solid var(--neutral-light-300);
+        display: flex; align-items: center; justify-content: space-between;
+      }
+
+      .panel-header h3 {
+        margin: 0;
+        font-size: 16px; font-weight: 600;
+        color: var(--neutral-dark-800);
+      }
+
+      .panel-header h3 .x {
+        color: var(--neutral-dark-600);
+        margin-right: 6px; cursor: pointer;
+        font-size: 13px;
+      }
+
+      .panel-empty {
+        padding: 48px 20px;
+        text-align: center;
+        font-size: 14px;
+        color: var(--neutral-dark-600);
+        line-height: 22px;
+      }
+
+      .panel-empty .hint {
+        display: block; margin-top: 6px;
+        font-size: 12px;
+        color: var(--neutral-dark-500);
+      }
+
+      /* Component ID strip — Hikari uses monospace 12px on newNeutralDark400. */
+      .panel-subheader {
+        padding: 8px 16px;
+        font-size: 12px;
+        color: var(--neutral-dark-600);
+        border-bottom: 1px solid var(--neutral-light-300);
+        font-family: 'SF Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+        display: flex; justify-content: space-between; align-items: center;
+      }
+
+      .go-to-code {
+        background: var(--hikari-dark); color: #fff;
+        padding: 4px 10px; font-size: 12px; border-radius: 8px;
+        font-family: 'Graphik Web', inherit;
+        font-weight: 500;
+        cursor: pointer;
+      }
+
+      .go-to-code:hover { background: var(--hikari-dark-hover); }
+
+      /* Multi-toolbar */
+      .multi-toolbar {
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--neutral-light-200);
+        display: flex; align-items: center; gap: 8px;
+        background: var(--selected-blue-soft);
+      }
+
+      .multi-toolbar.template { background: var(--template-teal-soft); }
+
+      .multi-toolbar.group { background: var(--group-purple-soft); }
+
+      .multi-toolbar.group.auto {
+        border-bottom: 1.5px dashed rgba(139, 92, 246, 0.35);
+      }
+
+      .multi-toolbar .avatar-stack { display: flex; }
+
+      .avatar-stack .a {
+        width: 22px; height: 22px;
+        background: #f5d9a6; color: #6b2a19;
+        font-size: 10px; font-weight: 700;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        margin-left: -8px;
+        display: grid; place-items: center;
+      }
+
+      .avatar-stack .a:first-child { margin-left: 0; }
+
+      .avatar-stack .more { background: var(--selected-blue); color: #fff; }
+      .avatar-stack .more.group { background: var(--group-purple); color: #fff; }
+      .avatar-stack .more.template { background: var(--template-teal); color: #fff; }
+
+      .avatar-stack .inf {
+        background: var(--template-teal); color: #fff;
+        font-size: 12px;
+      }
+
+      .avatar-stack .inf.group { background: var(--group-purple); }
+
+      .avatar-stack .a.group {
+        background: #ece4ff; color: var(--group-purple);
+      }
+
+      .multi-toolbar .summary {
+        font-size: 12px; font-weight: 600;
+        color: var(--selected-blue);
+      }
+
+      .multi-toolbar.template .summary { color: var(--template-teal); }
+      .multi-toolbar.group .summary { color: var(--group-purple); }
+
+      .multi-toolbar .sub {
+        font-size: 11px; color: var(--neutral-dark-600);
+      }
+
+      .multi-toolbar .sub code {
+        background: rgba(139, 92, 246, 0.1);
+        color: var(--group-purple);
+        padding: 1px 5px; border-radius: 3px;
+        font-family: 'SF Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 10px;
+      }
+
+      .multi-toolbar .unlink {
+        margin-left: auto;
+        font-size: 11px;
+        color: var(--selected-blue);
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .multi-toolbar.template .unlink { color: var(--template-teal); }
+      .multi-toolbar.group .unlink { color: var(--group-purple); }
+
+      /* Scope control for B + C */
+      .scope-control {
+        padding: 8px 16px 4px;
+        border-bottom: 1px solid var(--neutral-light-200);
+        display: flex; flex-direction: column; gap: 6px;
+      }
+
+      .scope-control .label {
+        font-size: 11px; font-weight: 600;
+        letter-spacing: 0.04em; text-transform: uppercase;
+        color: var(--neutral-dark-600);
+      }
+
+      .scope-toggle {
+        display: flex;
+        background: var(--neutral-light-200);
+        border-radius: 10px;
+        padding: 2px;
+      }
+
+      .scope-toggle button {
+        flex: 1;
+        border: none; background: transparent;
+        padding: 4px 10px;
+        height: 28px;
+        font-size: 13px;
+        color: var(--neutral-dark-800);
+        font-weight: 500;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 6px;
+        font-family: inherit;
+      }
+
+      /* Matches hikari-nav-link--active: white card, 8px radius, #1d1c22 / 500. */
+      .scope-toggle button.active {
+        background: #fff;
+        color: var(--hikari-dark);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        font-weight: 500;
+      }
+
+      .scope-toggle button[disabled] {
+        opacity: 0.4;
+        cursor: not-allowed;
+        text-decoration: line-through;
+      }
+
+      .scope-toggle button .count {
+        background: var(--neutral-light-300);
+        padding: 0 6px; border-radius: 999px;
+        font-size: 10px;
+      }
+
+      .scope-toggle button.active .count {
+        background: var(--selected-blue-soft); color: var(--selected-blue);
+      }
+
+      .scope-toggle button.active.template .count {
+        background: var(--template-teal-soft); color: var(--template-teal);
+      }
+
+      /* Group meta (C) */
+      .group-meta {
+        padding: 8px 16px;
+        border-bottom: 1px solid var(--neutral-light-200);
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 8px;
+        font-size: 12px; color: var(--neutral-dark-600);
+      }
+
+      .group-meta code {
+        background: var(--group-purple-soft);
+        color: var(--group-purple);
+        padding: 1px 6px; border-radius: 4px;
+        font-family: 'SF Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 11px; font-weight: 600;
+      }
+
+      .group-meta .override-pill {
+        background: rgba(139, 92, 246, 0.12);
+        color: var(--group-purple);
+        padding: 2px 8px; border-radius: 999px;
+        font-weight: 600;
+      }
+
+      /* Applies-to strip */
+      .applies-to {
+        padding: 10px 16px;
+        background: var(--selected-blue-soft);
+        border-top: 1px solid rgba(91, 124, 255, 0.15);
+        border-bottom: 1px solid rgba(91, 124, 255, 0.15);
+        font-size: 12px;
+        color: var(--selected-blue);
+        display: flex; align-items: flex-start; gap: 8px;
+      }
+
+      .applies-to .dot {
+        width: 8px; height: 8px; border-radius: 50%;
+        background: var(--selected-blue);
+        margin-top: 4px; flex-shrink: 0;
+      }
+
+      .applies-to.group {
+        background: var(--group-purple-soft);
+        color: var(--group-purple);
+      }
+
+      .applies-to.group .dot { background: var(--group-purple); }
+
+      .applies-to.template {
+        background: var(--template-teal-soft);
+        color: var(--template-teal);
+      }
+
+      .applies-to.template .dot { background: var(--template-teal); }
+
+      /* Ant Collapse panels — Hikari StylePanel convention:
+         header: padding-left 16px, 14px/500, $newNeutralDark800; divider $newNeutralLight300. */
+      .collapse-section {
+        border-bottom: 1px solid var(--neutral-light-300);
+      }
+
+      .collapse-header {
+        padding: 12px 16px;
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--neutral-dark-800);
+        display: flex; align-items: center; gap: 8px;
+        cursor: pointer; user-select: none;
+        background: #fff;
+      }
+
+      .collapse-header .chev {
+        font-size: 10px;
+        color: var(--neutral-dark-600);
+        transition: transform 0.15s;
+      }
+
+      .collapse-body {
+        padding: 4px 8px 14px;
+        display: flex; flex-direction: column; gap: 8px;
+      }
+
+      .prop-row {
+        display: flex; align-items: center; gap: 8px;
+        padding: 0 8px;
+        font-size: 13px;
+      }
+
+      .prop-row label {
+        min-width: 100px;
+        color: var(--neutral-dark-600);
+        font-size: 13px;
+        font-weight: 400;
+        display: flex; align-items: center; gap: 4px;
+      }
+
+      /* Hikari Ant inputs: 28px min-height, 6px radius, $newNeutralLight400 border. */
+      .prop-row .input,
+      .prop-row input.input,
+      .prop-row textarea.input {
+        flex: 1;
+        border: 1px solid var(--neutral-light-400);
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-size: 13px;
+        color: var(--neutral-dark-800);
+        background: #fff;
+        display: flex; align-items: center;
+        min-height: 28px;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+
+      .prop-row input.input:hover:not(:focus) { border-color: var(--thunkable-purple); }
+      .prop-row input.input:focus {
+        border-color: var(--thunkable-purple);
+        box-shadow: 0 0 0 2px rgba(93, 122, 252, 0.1);
+      }
+
+      .prop-row .input.mixed,
+      .prop-row input.input.mixed {
+        color: #865300;
+        background: var(--mixed-yellow);
+        border-color: var(--mixed-yellow-border);
+        font-style: italic;
+      }
+
+      .prop-row .input .placeholder { color: var(--neutral-light-500); }
+
+      .prop-row .swatch {
+        width: 18px; height: 18px;
+        border-radius: 4px;
+        border: 1px solid var(--chrome-border);
+        flex-shrink: 0;
+      }
+
+      .prop-row .swatch.black { background: #151517; }
+      .prop-row .swatch.warm { background: #f5d9a6; }
+      .prop-row .swatch.warm-deep { background: #6b2a19; }
+      .prop-row .swatch.white-translucent { background: #f5efe2; }
+
+      .override-dot {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: var(--group-purple);
+        display: inline-block;
+        margin-left: 6px;
+        cursor: pointer;
+      }
+
+      /* Caption under each editor */
+      .caption {
+        background: #fff;
+        border: 1px solid var(--chrome-border);
+        border-top: none;
+        border-radius: 0 0 12px 12px;
+        padding: 14px 18px;
+        margin-top: -12px;
+        font-size: 13px;
+        line-height: 1.55;
+        color: var(--neutral-dark-700);
+      }
+
+      .caption b { color: var(--neutral-dark-900); }
+
+      .caption code {
+        background: var(--neutral-light-200);
+        padding: 1px 5px; border-radius: 4px;
+        font-size: 12px;
+      }
+
+      .editor-wrap { margin-bottom: 4px; }
+
+      /* Compare */
+      .compare {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 28px;
+      }
+
+      .compare .c {
+        background: #fff;
+        border: 1px solid var(--chrome-border);
+        border-radius: 10px;
+        padding: 18px;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .compare .c h4 { margin: 0 0 6px; font-size: 14px; }
+
+      .compare .c .tag {
+        display: inline-block;
+        padding: 2px 8px; border-radius: 4px;
+        font-size: 11px; font-weight: 600;
+        margin-right: 4px;
+      }
+
+      .compare .c .tag.pro { background: #dcf4e5; color: #0f7a42; }
+      .compare .c .tag.con { background: #fde2dc; color: #a62a14; }
+
+      .compare .c .tag.dyn {
+        background: var(--template-teal-soft);
+        color: var(--template-teal);
+      }
+
+      .compare .c ul {
+        margin: 6px 0 10px; padding-left: 16px;
+        color: var(--neutral-dark-700);
+      }
+
+      .compare .c li { margin-bottom: 3px; }
+
+      .comp-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 24px;
+        font-size: 13px;
+        background: #fff;
+        border: 1px solid var(--chrome-border);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .comp-table th, .comp-table td {
+        padding: 10px 14px;
+        text-align: left;
+        border-bottom: 1px solid var(--neutral-light-200);
+      }
+
+      .comp-table th {
+        background: var(--neutral-light-100);
+        font-weight: 600;
+        color: var(--neutral-dark-700);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+
+      .comp-table td.criterion {
+        font-weight: 500;
+        color: var(--neutral-dark-800);
+      }
+
+      .comp-table td.v {
+        text-align: center;
+        color: var(--neutral-dark-600);
+      }
+
+      .comp-table td.v.yes { color: #0f7a42; font-weight: 600; }
+      .comp-table td.v.no { color: var(--neutral-light-500); }
+
+      .hotkey {
+        display: inline-block;
+        border: 1px solid var(--chrome-border);
+        border-bottom-width: 2px;
+        border-radius: 4px;
+        padding: 0 5px;
+        font-family: 'SF Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 11px;
+        color: var(--neutral-dark-700);
+        background: #fafbfd;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ================================================================== -->
+    <!-- Sticky topbar                                                         -->
+    <!-- ================================================================== -->
+    <div class="topbar">
+      <div class="topbar-inner">
+        <h1>
+          Hikari — Multi-Element Editing
+          <span class="muted">· Interactive Mockup</span>
+        </h1>
+        <span class="live-badge">Live</span>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- Multi-select (the chosen approach)                                   -->
+    <!-- ================================================================== -->
+    <section class="approach-page visible" data-approach="a">
+      <div class="intro">
+        <div class="intro-head">
+          <h2>Shift-click multi-select</h2>
+          <span class="tagline">Transient · familiar from Figma, Sketch, Adobe XD</span>
+        </div>
+        <div class="summary-grid">
+          <div class="summary-card">
+            <div class="k">How selection works</div>
+            <div>
+              <span class="hotkey">⇧ Click</span> or <span class="hotkey">⌘ Click</span> to toggle
+              an element in/out of the selection. Click one without Shift to replace. Click empty
+              stage to clear.
+            </div>
+          </div>
+          <div class="summary-card">
+            <div class="k">How editing works</div>
+            <div>
+              StylePanel switches to multi-edit. Shared values render normally;
+              diverging values leave the field blank. Typing a value applies
+              to every selected element.
+            </div>
+          </div>
+          <div class="summary-card">
+            <div class="k">What it changes in code</div>
+            <div>
+              Reuses <code>modifyStyles()</code> — runs once per selected
+              <code>testID</code> inside a single debounced save. No schema change.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="try-it">
+        <span class="tag">Try it</span>
+        <div>
+          Shift-click the number keys below, then type a new
+          <code>Border Radius</code> or <code>Height</code> — every selected key re-renders live.
+          When the selected keys have different values, that field stays blank.
+        </div>
+      </div>
+
+      <div class="scenario-tabs">
+        <button class="active" data-scenario="static">
+          Static elements <span class="tag static">Calculator</span>
+        </button>
+        <button data-scenario="dynamic">
+          Dynamic list <span class="tag dynamic">Events</span>
+        </button>
+      </div>
+
+      <!-- A · Static -->
+      <div class="scenario visible" data-scenario="static">
+        <div class="editor-wrap">
+          <div class="editor" data-editor="a-static">
+            <nav class="hikari-navbar">
+              <div class="hikari-navbar-left">
+                <div class="hikari-navbar-section">
+                  <div class="hikari-navbar-logo">
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAEjUlEQVR4AZxUa2yTVRh+zvnabi0Z0o2B1zEUnHFoQqKJ+sfEiJKgP2RIvIxLRMWEy5SgUee2LAshaNRdyDQMWYChy9CNuQ2R6QLhB+ggAm6yyW4tzdiGu1/afm2/43vO9pUOtgVoznt73stzzulpOWb4DHV2zvW7XMk+t3svWWGK7nYHdJcrjeLkIY8nboYRmJbA39GRER0Mfk/NDUyIDWTDSwhhEUAugIYowyiRteRPuW4iEGfPWmnHBWAsmwYtm7IrEhRiuaylE22NhE1/EoFwuZz++PhG2vFmKmAkaoWuduKKuxutHT3wkDUoNrxeFf9YUy8t6x0YydM9nqdUQ4SaRKADaTR1sZk3OtoR+KUKFzNzsPbdPFSfvoztnxYjf9sX2J17GKnvF6EvyFH7lwvbskvh8/pP+1yul81+acME3ra2BQSEjzlwrh7+7wrRXHkMH3qcyPo6Ddu2r0ZuSRZKex2oONmEsrJMbN7yCrZsXYnkpQ9D14OgDe6fmEXjcP1L1jTtMiFOwxA4X3sKnr378fyfNqRfmY0nX3wGy154AlSDhIT58AuG4RBTMSY+nLMJD07GebIZqBPQsR6kV2GVYGFxLcqLKlE3aMNn9w3j0KI+NF9yoadnQKYxNDiCWIuBDfPGkJKShaI91SjIL8elCy2w2SyqhjFWoxxSioAzli76++DbmY3n6o/gg/kjeDt+FM/G+CELlo+0YM2bO/DSik+welU21s8dwzqS/HlXUVlYinMHf8Ln6a8iaoKA5sLf3v6ItLIftPtYw+eD0dWJxKgQojghMjshqTSsLKYRj//Xgt3R/yAl1qsyyfYAShb2Im/BEJyaUFhYadpO6XN661wYhkVoGvx0/xKcTj66dwRz6XrMPIuOhpa4EDBCGCveAxEImKmw5WhungXGZtM1wcrCX1S4YDrHvvYt2DduguXRx8ZLWv8FglMRjKfh+/si+K3Ph/fAPmgPLYYYG1UTpmvlSEoahRBDqDysCm9HDW99D/qJ31ULS0gELOohqthUnDFm6N3dQRO4U8sXJ4FZpyCQA/Vd2cPS3omYb2fMagPdRHiErusZMuBSaQmJX0l7u2JQw4khG/Zdc4DXn8FI1RFCxlfMokUN0lMEztzC8/SSzM1IfEbx6BrWtTqxpi0OgyvXEsEsWHq6gF9rMJiTgcG64yvMAYpABYzRg2bj/wcKmKy8/gC6BoYRCIZgZwI5H69CzYUSrN+UgpNJ3WBUzklZr/X0W6sqGilUK0wwp/yoGw7HAYWaStChpIRoqIXj7hgH/VaAOB5A3KFvzCo4XkuF20fTCREhY52z/KiLXLXCBJQWltmOHYiO7lcZqQy6ZSnSv0Giwp2AdfUbqBudBQ7xdGz18arIUh4ZxHx7sGdO/AP3MLu9FKEQbT8ye92XCYNxNDW5FcgYE3/cvzTtrqrfziggQk0ikDgrKPDP+aHidbrULHB+SmKThDEw+t+yaRwb3/lSpo5pGs8qLcvMl8GNchOBWeD8uTbHwh2rDPAltNty0FAlfLyFOey7QkJbQvWpjLEcslOu/wEAAP//ilJjmwAAAAZJREFUAwB/ecEjrpgfBgAAAABJRU5ErkJggg==" alt="Thunkable logo" />
+                    <div class="hikari-navbar-title">AI</div>
+                  </div>
+                  <div class="hikari-project-name">
+                    <input class="hikari-project-name-input" type="text" value="SimpleCalc" readonly />
+                    <span class="caret-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.06 5.72665L8 8.77999L4.94 5.72665L4 6.66665L8 10.6667L12 6.66665L11.06 5.72665Z"/></svg></span>
+                  </div>
+                </div>
+                <div class="hikari-navbar-section">
+                  <button class="hikari-btn--icon" title="Privacy"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 22C5.45 22 4.97917 21.8042 4.5875 21.4125C4.19583 21.0208 4 20.55 4 20V10C4 9.45 4.19583 8.97917 4.5875 8.5875C4.97917 8.19583 5.45 8 6 8H7V6C7 4.61667 7.4875 3.4375 8.4625 2.4625C9.4375 1.4875 10.6167 1 12 1C13.3833 1 14.5625 1.4875 15.5375 2.4625C16.5125 3.4375 17 4.61667 17 6V8H18C18.55 8 19.0208 8.19583 19.4125 8.5875C19.8042 8.97917 20 9.45 20 10V20C20 20.55 19.8042 21.0208 19.4125 21.4125C19.0208 21.8042 18.55 22 18 22H6ZM6 20H18V10H6V20ZM12 17C12.55 17 13.0208 16.8042 13.4125 16.4125C13.8042 16.0208 14 15.55 14 15C14 14.45 13.8042 13.9792 13.4125 13.5875C13.0208 13.1958 12.55 13 12 13C11.45 13 10.9792 13.1958 10.5875 13.5875C10.1958 13.9792 10 14.45 10 15C10 15.55 10.1958 16.0208 10.5875 16.4125C10.9792 16.8042 11.45 17 12 17ZM9 8H15V6C15 5.16667 14.7083 4.45833 14.125 3.875C13.5417 3.29167 12.8333 3 12 3C11.1667 3 10.4583 3.29167 9.875 3.875C9.29167 4.45833 9 5.16667 9 6V8Z"/></svg></button>
+                  <button class="hikari-btn--icon" title="Color Schema"><svg width="16" height="16" viewBox="0 0 72 72" fill="currentColor"><path d="M36 66C31.9 66 28.025 65.2125 24.375 63.6375C20.725 62.0625 17.5375 59.9125 14.8125 57.1875C12.0875 54.4625 9.9375 51.275 8.3625 47.625C6.7875 43.975 6 40.1 6 36C6 31.85 6.8125 27.95 8.4375 24.3C10.0625 20.65 12.2625 17.475 15.0375 14.775C17.8125 12.075 21.05 9.9375 24.75 8.3625C28.45 6.7875 32.4 6 36.6 6C40.6 6 44.375 6.6875 47.925 8.0625C51.475 9.4375 54.5875 11.3375 57.2625 13.7625C59.9375 16.1875 62.0625 19.0625 63.6375 22.3875C65.2125 25.7125 66 29.3 66 33.15C66 38.9 64.25 43.3125 60.75 46.3875C57.25 49.4625 53 51 48 51H42.45C42 51 41.6875 51.125 41.5125 51.375C41.3375 51.625 41.25 51.9 41.25 52.2C41.25 52.8 41.625 53.6625 42.375 54.7875C43.125 55.9125 43.5 57.2 43.5 58.65C43.5 61.15 42.8125 63 41.4375 64.2C40.0625 65.4 38.25 66 36 66ZM19.5 39C20.8 39 21.875 38.575 22.725 37.725C23.575 36.875 24 35.8 24 34.5C24 33.2 23.575 32.125 22.725 31.275C21.875 30.425 20.8 30 19.5 30C18.2 30 17.125 30.425 16.275 31.275C15.425 32.125 15 33.2 15 34.5C15 35.8 15.425 36.875 16.275 37.725C17.125 38.575 18.2 39 19.5 39ZM28.5 27C29.8 27 30.875 26.575 31.725 25.725C32.575 24.875 33 23.8 33 22.5C33 21.2 32.575 20.125 31.725 19.275C30.875 18.425 29.8 18 28.5 18C27.2 18 26.125 18.425 25.275 19.275C24.425 20.125 24 21.2 24 22.5C24 23.8 24.425 24.875 25.275 25.725C26.125 26.575 27.2 27 28.5 27ZM43.5 27C44.8 27 45.875 26.575 46.725 25.725C47.575 24.875 48 23.8 48 22.5C48 21.2 47.575 20.125 46.725 19.275C45.875 18.425 44.8 18 43.5 18C42.2 18 41.125 18.425 40.275 19.275C39.425 20.125 39 21.2 39 22.5C39 23.8 39.425 24.875 40.275 25.725C41.125 26.575 42.2 27 43.5 27ZM52.5 39C53.8 39 54.875 38.575 55.725 37.725C56.575 36.875 57 35.8 57 34.5C57 33.2 56.575 32.125 55.725 31.275C54.875 30.425 53.8 30 52.5 30C51.2 30 50.125 30.425 49.275 31.275C48.425 32.125 48 33.2 48 34.5C48 35.8 48.425 36.875 49.275 37.725C50.125 38.575 51.2 39 52.5 39Z"/></svg></button>
+                  <button class="hikari-btn--icon active colored" title="Versions"><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M9.99272 11.5748C9.55772 11.5748 9.18689 11.4202 8.88022 11.111C8.57355 10.8019 8.42022 10.4303 8.42022 9.99625C8.42022 9.56223 8.57487 9.19188 8.88418 8.88521C9.19348 8.57854 9.56522 8.42521 9.99939 8.42521C10.4351 8.42521 10.8065 8.57917 11.1138 8.88709C11.4211 9.195 11.5748 9.56743 11.5748 10.0044C11.5748 10.4413 11.4199 10.8123 11.11 11.1173C10.8002 11.4223 10.4277 11.5748 9.99272 11.5748ZM9.99459 17.1694C8.00723 17.1694 6.31209 16.4731 4.90918 15.0804C3.50626 13.6878 2.81341 11.9943 2.83064 10H4.5548C4.58591 11.5111 5.12626 12.7956 6.17584 13.8535C7.22543 14.9113 8.49848 15.4402 9.99501 15.4402C11.5106 15.4402 12.7961 14.9128 13.8517 13.8581C14.9074 12.8033 15.4352 11.5188 15.4352 10.0046C15.4352 8.49042 14.9074 7.20438 13.8517 6.14646C12.7961 5.08868 11.5106 4.55979 9.99501 4.55979C9.21543 4.55979 8.47432 4.72278 7.77168 5.04875C7.06918 5.37459 6.45202 5.83007 5.92022 6.41521H8.01001V8H2.87543V2.87542H4.45022V5.50896C5.13216 4.65327 5.9548 3.99299 6.91814 3.52813C7.88133 3.06313 8.90696 2.83063 9.99501 2.83063C10.9903 2.83063 11.9224 3.01952 12.7915 3.39729C13.6606 3.77507 14.4179 4.2866 15.0631 4.93188C15.7086 5.57715 16.2201 6.33438 16.5977 7.20354C16.9755 8.07271 17.1644 9.00493 17.1644 10.0002C17.1644 10.9955 16.9755 11.9276 16.5977 12.7967C16.2201 13.6657 15.7086 14.4229 15.0631 15.0681C14.4179 15.7134 13.6606 16.2249 12.7913 16.6027C11.9221 16.9805 10.9899 17.1694 9.99459 17.1694Z"/></svg></button>
+                  <button class="hikari-btn--icon" title="Collapse panel"><svg width="14" height="14" viewBox="0 0 15 15" fill="currentColor"><path d="M10.8138 9.58021V4.75854C10.8138 4.56521 10.7284 4.43236 10.5577 4.36C10.387 4.2875 10.2308 4.31514 10.0892 4.44292L7.8225 6.54292C7.64639 6.72278 7.55833 6.9325 7.55833 7.17208C7.55833 7.41181 7.64639 7.61972 7.8225 7.79583L10.0892 9.89583C10.2283 10.0236 10.3839 10.0504 10.5558 9.97625C10.7278 9.90208 10.8138 9.77007 10.8138 9.58021ZM1.625 14.3388C1.17472 14.3388 0.79132 14.1805 0.474792 13.864C0.158264 13.5474 0 13.164 0 12.7138V1.625C0 1.17472 0.158264 0.791319 0.474792 0.474791C0.79132 0.158263 1.17472 0 1.625 0H12.7138C13.164 0 13.5474 0.158263 13.864 0.474791C14.1805 0.791319 14.3388 1.17472 14.3388 1.625V12.7138C14.3388 13.164 14.1805 13.5474 13.864 13.864C13.5474 14.1805 13.164 14.3388 12.7138 14.3388H1.625ZM4.12958 12.6096V1.72917H1.72917V12.6096H4.12958ZM5.85875 12.6096H12.6096V1.72917H5.85875V12.6096Z"/></svg></button>
+                </div>
+              </div>
+              <div class="hikari-navbar-right">
+                <div class="hikari-navbar-section">
+                  <div class="hikari-nav-links">
+                    <div class="hikari-nav-link hikari-nav-link--active"><span>Edit</span></div>
+                    <div class="hikari-nav-link"><span>Preview</span></div>
+                    <div class="hikari-nav-link"><span>Code</span></div>
+                  </div>
+                </div>
+                <div class="hikari-navbar-section">
+                  <div class="hikari-select">
+                    <div class="select-label"><span class="page-icon"><svg width="16" height="16" viewBox="0 0 13 17" fill="currentColor"><path d="M10.6088 16.3388H1.72333C1.24417 16.3388 0.837153 16.1703 0.502292 15.8333C0.167431 15.4964 0 15.0885 0 14.6096V1.72917C0 1.25028 0.168472 0.842361 0.505417 0.505417C0.842361 0.168472 1.25028 0 1.72917 0H7.51937C7.74771 0 7.96528 0.0405561 8.17208 0.121667C8.37889 0.202639 8.57035 0.33118 8.74646 0.507291L11.8315 3.59229C12.0076 3.7684 12.1361 3.95986 12.2171 4.16667C12.2982 4.37347 12.3388 4.59104 12.3388 4.81938V14.6096C12.3388 15.0885 12.1702 15.4964 11.8331 15.8333C11.496 16.1703 11.0879 16.3388 10.6088 16.3388ZM10.6096 14.6096V4.81938L7.51937 1.72917H1.72917V14.6096H10.6096Z"/></svg></span><span>Calculator</span></div>
+                    <span class="select-arrow"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.06 5.72665L8 8.77999L4.94 5.72665L4 6.66665L8 10.6667L12 6.66665L11.06 5.72665Z"/></svg></span>
+                  </div>
+                </div>
+                <div class="hikari-navbar-section">
+                  <button class="hikari-btn--icon" title="Live Test"><svg width="14" height="14" viewBox="0 0 13 19" fill="currentColor"><path d="M1.72917 18.3388C1.25028 18.3388 0.842361 18.1703 0.505417 17.8333C0.168472 17.4964 0 17.0885 0 16.6096V1.72917C0 1.20444 0.157014 0.785069 0.471042 0.471041C0.785069 0.157014 1.20444 0 1.72917 0H9.59958C10.0785 0 10.4864 0.168472 10.8233 0.505417C11.1603 0.842361 11.3288 1.25028 11.3288 1.72917V4.58458C11.6099 4.59792 11.8476 4.70847 12.0421 4.91625C12.2365 5.12389 12.3338 5.3716 12.3338 5.65938V7.63458C12.3338 7.92222 12.2365 8.17076 12.0421 8.38021C11.8476 8.58965 11.6099 8.70097 11.3288 8.71417V16.6096C11.3288 17.0885 11.1603 17.4964 10.8233 17.8333C10.4864 18.1703 10.0785 18.3388 9.59958 18.3388H1.72917ZM1.72417 16.6146H9.60458V1.72417H1.72417V16.6146ZM3.98917 15.515H7.34458C7.5882 15.515 7.79236 15.4319 7.95708 15.2656C8.12181 15.0995 8.20417 14.8955 8.20417 14.6535C8.20417 14.4116 8.12181 14.2073 7.95708 14.0406C7.79236 13.8741 7.5882 13.7908 7.34458 13.7908H3.98417C3.74056 13.7908 3.53639 13.8739 3.37167 14.04C3.20694 14.2061 3.12458 14.4101 3.12458 14.6521C3.12458 14.8942 3.20806 15.0985 3.375 15.265C3.54194 15.4317 3.74667 15.515 3.98917 15.515Z"/></svg></button>
+                  <button class="hikari-btn--icon" title="Download"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13,13.1715729 L15.5355339,10.636039 L16.9497475,12.0502525 L13.4142136,15.5857864 L12,17 L7.05025253,12.0502525 L8.46446609,10.636039 L11,13.1715729 L11,2 L13,2 L13,13.1715729 Z M20,19 L20,15 L22,15 L22,19 L22,21 L2,21 L2,19 L2,15 L4,15 L4,19 L20,19 Z"/></svg></button>
+                  <button class="hikari-btn--primary">Publish</button>
+                </div>
+              </div>
+            </nav>
+            <div class="body">
+              <div class="chat-col">
+                <div class="chat-tabs">
+                  <span class="active">Chat</span><span>Theme</span><span>Versions</span>
+                </div>
+                <div class="chat-actions">
+                  <button data-action="reset-log">Clear log</button>
+                </div>
+                <div class="chat-body" data-chat-body></div>
+                <div class="chat-prompt">
+                  <div class="chat-prompt-inner">
+                    <div class="input">Ask Thunkable…</div>
+                    <div class="actions">
+                      <span>💡 Discuss</span>
+                      <div class="send">↗</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="stage" data-stage></div>
+              <div class="panel" data-panel></div>
+            </div>
+          </div>
+          <div class="caption">
+            <b>Shift-click the number keys</b> to add them to the selection. Each selected key
+            gets a blue outline and a selection-order badge. A floating pill confirms the count
+            and type; the StylePanel pluralises the header and switches properties into
+            multi-edit — fields where the selected keys agree show the shared value, fields where
+            they diverge stay blank. Typing a value applies to every selected element at once.
+            The chat log on the left mirrors what <code>modifyStyles()</code> would be called with.
+          </div>
+        </div>
+      </div>
+
+      <!-- A · Dynamic -->
+      <div class="scenario" data-scenario="dynamic">
+        <div class="editor-wrap">
+          <div class="editor" data-editor="a-dynamic">
+            <nav class="hikari-navbar">
+              <div class="hikari-navbar-left">
+                <div class="hikari-navbar-section">
+                  <div class="hikari-navbar-logo">
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAEjUlEQVR4AZxUa2yTVRh+zvnabi0Z0o2B1zEUnHFoQqKJ+sfEiJKgP2RIvIxLRMWEy5SgUee2LAshaNRdyDQMWYChy9CNuQ2R6QLhB+ggAm6yyW4tzdiGu1/afm2/43vO9pUOtgVoznt73stzzulpOWb4DHV2zvW7XMk+t3svWWGK7nYHdJcrjeLkIY8nboYRmJbA39GRER0Mfk/NDUyIDWTDSwhhEUAugIYowyiRteRPuW4iEGfPWmnHBWAsmwYtm7IrEhRiuaylE22NhE1/EoFwuZz++PhG2vFmKmAkaoWuduKKuxutHT3wkDUoNrxeFf9YUy8t6x0YydM9nqdUQ4SaRKADaTR1sZk3OtoR+KUKFzNzsPbdPFSfvoztnxYjf9sX2J17GKnvF6EvyFH7lwvbskvh8/pP+1yul81+acME3ra2BQSEjzlwrh7+7wrRXHkMH3qcyPo6Ddu2r0ZuSRZKex2oONmEsrJMbN7yCrZsXYnkpQ9D14OgDe6fmEXjcP1L1jTtMiFOwxA4X3sKnr378fyfNqRfmY0nX3wGy154AlSDhIT58AuG4RBTMSY+nLMJD07GebIZqBPQsR6kV2GVYGFxLcqLKlE3aMNn9w3j0KI+NF9yoadnQKYxNDiCWIuBDfPGkJKShaI91SjIL8elCy2w2SyqhjFWoxxSioAzli76++DbmY3n6o/gg/kjeDt+FM/G+CELlo+0YM2bO/DSik+welU21s8dwzqS/HlXUVlYinMHf8Ln6a8iaoKA5sLf3v6ItLIftPtYw+eD0dWJxKgQojghMjshqTSsLKYRj//Xgt3R/yAl1qsyyfYAShb2Im/BEJyaUFhYadpO6XN661wYhkVoGvx0/xKcTj66dwRz6XrMPIuOhpa4EDBCGCveAxEImKmw5WhungXGZtM1wcrCX1S4YDrHvvYt2DduguXRx8ZLWv8FglMRjKfh+/si+K3Ph/fAPmgPLYYYG1UTpmvlSEoahRBDqDysCm9HDW99D/qJ31ULS0gELOohqthUnDFm6N3dQRO4U8sXJ4FZpyCQA/Vd2cPS3omYb2fMagPdRHiErusZMuBSaQmJX0l7u2JQw4khG/Zdc4DXn8FI1RFCxlfMokUN0lMEztzC8/SSzM1IfEbx6BrWtTqxpi0OgyvXEsEsWHq6gF9rMJiTgcG64yvMAYpABYzRg2bj/wcKmKy8/gC6BoYRCIZgZwI5H69CzYUSrN+UgpNJ3WBUzklZr/X0W6sqGilUK0wwp/yoGw7HAYWaStChpIRoqIXj7hgH/VaAOB5A3KFvzCo4XkuF20fTCREhY52z/KiLXLXCBJQWltmOHYiO7lcZqQy6ZSnSv0Giwp2AdfUbqBudBQ7xdGz18arIUh4ZxHx7sGdO/AP3MLu9FKEQbT8ye92XCYNxNDW5FcgYE3/cvzTtrqrfziggQk0ikDgrKPDP+aHidbrULHB+SmKThDEw+t+yaRwb3/lSpo5pGs8qLcvMl8GNchOBWeD8uTbHwh2rDPAltNty0FAlfLyFOey7QkJbQvWpjLEcslOu/wEAAP//ilJjmwAAAAZJREFUAwB/ecEjrpgfBgAAAABJRU5ErkJggg==" alt="Thunkable logo" />
+                    <div class="hikari-navbar-title">AI</div>
+                  </div>
+                  <div class="hikari-project-name">
+                    <input class="hikari-project-name-input" type="text" value="Community Hub" readonly />
+                    <span class="caret-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.06 5.72665L8 8.77999L4.94 5.72665L4 6.66665L8 10.6667L12 6.66665L11.06 5.72665Z"/></svg></span>
+                  </div>
+                </div>
+                <div class="hikari-navbar-section">
+                  <button class="hikari-btn--icon" title="Privacy"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 22C5.45 22 4.97917 21.8042 4.5875 21.4125C4.19583 21.0208 4 20.55 4 20V10C4 9.45 4.19583 8.97917 4.5875 8.5875C4.97917 8.19583 5.45 8 6 8H7V6C7 4.61667 7.4875 3.4375 8.4625 2.4625C9.4375 1.4875 10.6167 1 12 1C13.3833 1 14.5625 1.4875 15.5375 2.4625C16.5125 3.4375 17 4.61667 17 6V8H18C18.55 8 19.0208 8.19583 19.4125 8.5875C19.8042 8.97917 20 9.45 20 10V20C20 20.55 19.8042 21.0208 19.4125 21.4125C19.0208 21.8042 18.55 22 18 22H6ZM6 20H18V10H6V20ZM12 17C12.55 17 13.0208 16.8042 13.4125 16.4125C13.8042 16.0208 14 15.55 14 15C14 14.45 13.8042 13.9792 13.4125 13.5875C13.0208 13.1958 12.55 13 12 13C11.45 13 10.9792 13.1958 10.5875 13.5875C10.1958 13.9792 10 14.45 10 15C10 15.55 10.1958 16.0208 10.5875 16.4125C10.9792 16.8042 11.45 17 12 17ZM9 8H15V6C15 5.16667 14.7083 4.45833 14.125 3.875C13.5417 3.29167 12.8333 3 12 3C11.1667 3 10.4583 3.29167 9.875 3.875C9.29167 4.45833 9 5.16667 9 6V8Z"/></svg></button>
+                  <button class="hikari-btn--icon" title="Color Schema"><svg width="16" height="16" viewBox="0 0 72 72" fill="currentColor"><path d="M36 66C31.9 66 28.025 65.2125 24.375 63.6375C20.725 62.0625 17.5375 59.9125 14.8125 57.1875C12.0875 54.4625 9.9375 51.275 8.3625 47.625C6.7875 43.975 6 40.1 6 36C6 31.85 6.8125 27.95 8.4375 24.3C10.0625 20.65 12.2625 17.475 15.0375 14.775C17.8125 12.075 21.05 9.9375 24.75 8.3625C28.45 6.7875 32.4 6 36.6 6C40.6 6 44.375 6.6875 47.925 8.0625C51.475 9.4375 54.5875 11.3375 57.2625 13.7625C59.9375 16.1875 62.0625 19.0625 63.6375 22.3875C65.2125 25.7125 66 29.3 66 33.15C66 38.9 64.25 43.3125 60.75 46.3875C57.25 49.4625 53 51 48 51H42.45C42 51 41.6875 51.125 41.5125 51.375C41.3375 51.625 41.25 51.9 41.25 52.2C41.25 52.8 41.625 53.6625 42.375 54.7875C43.125 55.9125 43.5 57.2 43.5 58.65C43.5 61.15 42.8125 63 41.4375 64.2C40.0625 65.4 38.25 66 36 66ZM19.5 39C20.8 39 21.875 38.575 22.725 37.725C23.575 36.875 24 35.8 24 34.5C24 33.2 23.575 32.125 22.725 31.275C21.875 30.425 20.8 30 19.5 30C18.2 30 17.125 30.425 16.275 31.275C15.425 32.125 15 33.2 15 34.5C15 35.8 15.425 36.875 16.275 37.725C17.125 38.575 18.2 39 19.5 39ZM28.5 27C29.8 27 30.875 26.575 31.725 25.725C32.575 24.875 33 23.8 33 22.5C33 21.2 32.575 20.125 31.725 19.275C30.875 18.425 29.8 18 28.5 18C27.2 18 26.125 18.425 25.275 19.275C24.425 20.125 24 21.2 24 22.5C24 23.8 24.425 24.875 25.275 25.725C26.125 26.575 27.2 27 28.5 27ZM43.5 27C44.8 27 45.875 26.575 46.725 25.725C47.575 24.875 48 23.8 48 22.5C48 21.2 47.575 20.125 46.725 19.275C45.875 18.425 44.8 18 43.5 18C42.2 18 41.125 18.425 40.275 19.275C39.425 20.125 39 21.2 39 22.5C39 23.8 39.425 24.875 40.275 25.725C41.125 26.575 42.2 27 43.5 27ZM52.5 39C53.8 39 54.875 38.575 55.725 37.725C56.575 36.875 57 35.8 57 34.5C57 33.2 56.575 32.125 55.725 31.275C54.875 30.425 53.8 30 52.5 30C51.2 30 50.125 30.425 49.275 31.275C48.425 32.125 48 33.2 48 34.5C48 35.8 48.425 36.875 49.275 37.725C50.125 38.575 51.2 39 52.5 39Z"/></svg></button>
+                  <button class="hikari-btn--icon active colored" title="Versions"><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M9.99272 11.5748C9.55772 11.5748 9.18689 11.4202 8.88022 11.111C8.57355 10.8019 8.42022 10.4303 8.42022 9.99625C8.42022 9.56223 8.57487 9.19188 8.88418 8.88521C9.19348 8.57854 9.56522 8.42521 9.99939 8.42521C10.4351 8.42521 10.8065 8.57917 11.1138 8.88709C11.4211 9.195 11.5748 9.56743 11.5748 10.0044C11.5748 10.4413 11.4199 10.8123 11.11 11.1173C10.8002 11.4223 10.4277 11.5748 9.99272 11.5748ZM9.99459 17.1694C8.00723 17.1694 6.31209 16.4731 4.90918 15.0804C3.50626 13.6878 2.81341 11.9943 2.83064 10H4.5548C4.58591 11.5111 5.12626 12.7956 6.17584 13.8535C7.22543 14.9113 8.49848 15.4402 9.99501 15.4402C11.5106 15.4402 12.7961 14.9128 13.8517 13.8581C14.9074 12.8033 15.4352 11.5188 15.4352 10.0046C15.4352 8.49042 14.9074 7.20438 13.8517 6.14646C12.7961 5.08868 11.5106 4.55979 9.99501 4.55979C9.21543 4.55979 8.47432 4.72278 7.77168 5.04875C7.06918 5.37459 6.45202 5.83007 5.92022 6.41521H8.01001V8H2.87543V2.87542H4.45022V5.50896C5.13216 4.65327 5.9548 3.99299 6.91814 3.52813C7.88133 3.06313 8.90696 2.83063 9.99501 2.83063C10.9903 2.83063 11.9224 3.01952 12.7915 3.39729C13.6606 3.77507 14.4179 4.2866 15.0631 4.93188C15.7086 5.57715 16.2201 6.33438 16.5977 7.20354C16.9755 8.07271 17.1644 9.00493 17.1644 10.0002C17.1644 10.9955 16.9755 11.9276 16.5977 12.7967C16.2201 13.6657 15.7086 14.4229 15.0631 15.0681C14.4179 15.7134 13.6606 16.2249 12.7913 16.6027C11.9221 16.9805 10.9899 17.1694 9.99459 17.1694Z"/></svg></button>
+                  <button class="hikari-btn--icon" title="Collapse panel"><svg width="14" height="14" viewBox="0 0 15 15" fill="currentColor"><path d="M10.8138 9.58021V4.75854C10.8138 4.56521 10.7284 4.43236 10.5577 4.36C10.387 4.2875 10.2308 4.31514 10.0892 4.44292L7.8225 6.54292C7.64639 6.72278 7.55833 6.9325 7.55833 7.17208C7.55833 7.41181 7.64639 7.61972 7.8225 7.79583L10.0892 9.89583C10.2283 10.0236 10.3839 10.0504 10.5558 9.97625C10.7278 9.90208 10.8138 9.77007 10.8138 9.58021ZM1.625 14.3388C1.17472 14.3388 0.79132 14.1805 0.474792 13.864C0.158264 13.5474 0 13.164 0 12.7138V1.625C0 1.17472 0.158264 0.791319 0.474792 0.474791C0.79132 0.158263 1.17472 0 1.625 0H12.7138C13.164 0 13.5474 0.158263 13.864 0.474791C14.1805 0.791319 14.3388 1.17472 14.3388 1.625V12.7138C14.3388 13.164 14.1805 13.5474 13.864 13.864C13.5474 14.1805 13.164 14.3388 12.7138 14.3388H1.625ZM4.12958 12.6096V1.72917H1.72917V12.6096H4.12958ZM5.85875 12.6096H12.6096V1.72917H5.85875V12.6096Z"/></svg></button>
+                </div>
+              </div>
+              <div class="hikari-navbar-right">
+                <div class="hikari-navbar-section">
+                  <div class="hikari-nav-links">
+                    <div class="hikari-nav-link hikari-nav-link--active"><span>Edit</span></div>
+                    <div class="hikari-nav-link"><span>Preview</span></div>
+                    <div class="hikari-nav-link"><span>Code</span></div>
+                  </div>
+                </div>
+                <div class="hikari-navbar-section">
+                  <div class="hikari-select">
+                    <div class="select-label"><span class="page-icon"><svg width="16" height="16" viewBox="0 0 13 17" fill="currentColor"><path d="M10.6088 16.3388H1.72333C1.24417 16.3388 0.837153 16.1703 0.502292 15.8333C0.167431 15.4964 0 15.0885 0 14.6096V1.72917C0 1.25028 0.168472 0.842361 0.505417 0.505417C0.842361 0.168472 1.25028 0 1.72917 0H7.51937C7.74771 0 7.96528 0.0405561 8.17208 0.121667C8.37889 0.202639 8.57035 0.33118 8.74646 0.507291L11.8315 3.59229C12.0076 3.7684 12.1361 3.95986 12.2171 4.16667C12.2982 4.37347 12.3388 4.59104 12.3388 4.81938V14.6096C12.3388 15.0885 12.1702 15.4964 11.8331 15.8333C11.496 16.1703 11.0879 16.3388 10.6088 16.3388ZM10.6096 14.6096V4.81938L7.51937 1.72917H1.72917V14.6096H10.6096Z"/></svg></span><span>Events</span></div>
+                    <span class="select-arrow"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.06 5.72665L8 8.77999L4.94 5.72665L4 6.66665L8 10.6667L12 6.66665L11.06 5.72665Z"/></svg></span>
+                  </div>
+                </div>
+                <div class="hikari-navbar-section">
+                  <button class="hikari-btn--icon" title="Live Test"><svg width="14" height="14" viewBox="0 0 13 19" fill="currentColor"><path d="M1.72917 18.3388C1.25028 18.3388 0.842361 18.1703 0.505417 17.8333C0.168472 17.4964 0 17.0885 0 16.6096V1.72917C0 1.20444 0.157014 0.785069 0.471042 0.471041C0.785069 0.157014 1.20444 0 1.72917 0H9.59958C10.0785 0 10.4864 0.168472 10.8233 0.505417C11.1603 0.842361 11.3288 1.25028 11.3288 1.72917V4.58458C11.6099 4.59792 11.8476 4.70847 12.0421 4.91625C12.2365 5.12389 12.3338 5.3716 12.3338 5.65938V7.63458C12.3338 7.92222 12.2365 8.17076 12.0421 8.38021C11.8476 8.58965 11.6099 8.70097 11.3288 8.71417V16.6096C11.3288 17.0885 11.1603 17.4964 10.8233 17.8333C10.4864 18.1703 10.0785 18.3388 9.59958 18.3388H1.72917ZM1.72417 16.6146H9.60458V1.72417H1.72417V16.6146ZM3.98917 15.515H7.34458C7.5882 15.515 7.79236 15.4319 7.95708 15.2656C8.12181 15.0995 8.20417 14.8955 8.20417 14.6535C8.20417 14.4116 8.12181 14.2073 7.95708 14.0406C7.79236 13.8741 7.5882 13.7908 7.34458 13.7908H3.98417C3.74056 13.7908 3.53639 13.8739 3.37167 14.04C3.20694 14.2061 3.12458 14.4101 3.12458 14.6521C3.12458 14.8942 3.20806 15.0985 3.375 15.265C3.54194 15.4317 3.74667 15.515 3.98917 15.515Z"/></svg></button>
+                  <button class="hikari-btn--icon" title="Download"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13,13.1715729 L15.5355339,10.636039 L16.9497475,12.0502525 L13.4142136,15.5857864 L12,17 L7.05025253,12.0502525 L8.46446609,10.636039 L11,13.1715729 L11,2 L13,2 L13,13.1715729 Z M20,19 L20,15 L22,15 L22,19 L22,21 L2,21 L2,19 L2,15 L4,15 L4,19 L20,19 Z"/></svg></button>
+                  <button class="hikari-btn--primary">Publish</button>
+                </div>
+              </div>
+            </nav>
+            <div class="body">
+              <div class="chat-col">
+                <div class="chat-tabs">
+                  <span class="active">Chat</span><span>Theme</span><span>Versions</span>
+                </div>
+                <div class="chat-actions">
+                  <button data-action="reset-log">Clear log</button>
+                </div>
+                <div class="chat-body" data-chat-body></div>
+                <div class="chat-prompt">
+                  <div class="chat-prompt-inner">
+                    <div class="input">Ask Thunkable…</div>
+                    <div class="actions">
+                      <span>💡 Discuss</span>
+                      <div class="send">↗</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="stage" data-stage></div>
+              <div class="panel" data-panel></div>
+            </div>
+          </div>
+          <div class="caption">
+            <b>Click any event card.</b> Because the cards share one
+            <code>FlatList.renderItem</code> template, multi-select folds to a single-template
+            selection — click two cards, you still have one thing selected, because there <em>is</em>
+            only one thing. Edits go to the template and propagate to all 7 rendered cards, plus
+            any added at runtime. The chat log shows the template fanout each time you change a
+            property.
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ================================================================== -->
+    <!-- INTERACTIVE CONTROLLER                                               -->
+    <!-- ================================================================== -->
+    <script>
+      (function () {
+        'use strict';
+
+        // -------------------- Static reference data --------------------
+
+        const CALC_LAYOUT = [
+          { id: 'kC',   type: 'c',   label: 'C',  gridSpan: 2 },
+          { id: 'kDiv', type: 'op',  label: '÷' },
+          { id: 'kMul', type: 'op',  label: '×' },
+          { id: 'k7',   type: 'num', label: '7' },
+          { id: 'k8',   type: 'num', label: '8' },
+          { id: 'k9',   type: 'num', label: '9' },
+          { id: 'kSub', type: 'op',  label: '−' },
+          { id: 'k4',   type: 'num', label: '4' },
+          { id: 'k5',   type: 'num', label: '5' },
+          { id: 'k6',   type: 'num', label: '6' },
+          { id: 'kAdd', type: 'op',  label: '+' },
+          { id: 'k1',   type: 'num', label: '1' },
+          { id: 'k2',   type: 'num', label: '2' },
+          { id: 'k3',   type: 'num', label: '3' },
+          { id: 'kEq',  type: 'eq',  label: '=', rowSpan: 2 },
+          { id: 'k0',   type: 'num', label: '0', gridSpan: 2 },
+          { id: 'kDot', type: 'op',  label: '.' },
+        ];
+
+        // Every calc key is a Button — selectable and multi-editable.
+        const ALL_BUTTON_IDS = CALC_LAYOUT.map((k) => k.id);
+        // Legacy alias — some helper functions still reference it.
+        const NUM_KEY_IDS = ALL_BUTTON_IDS;
+
+        // Non-Button components on the phone. These demonstrate type-exclusive selection:
+        // you can select two Buttons together, or two Texts together, but NOT a Button with
+        // a Text in the same selection.
+        const TEXT_ELEMENTS = [
+          { id: 'tTitle',   label: 'SimpleCalc' },
+          { id: 'tDisplay', label: '0' },
+        ];
+        const TEXT_IDS = TEXT_ELEMENTS.map((t) => t.id);
+
+        // Map every element id to its component type. This drives the selection guard:
+        // shift-click is only accepted when the incoming element matches the current type.
+        function componentTypeOf(id) {
+          return TEXT_IDS.indexOf(id) !== -1 ? 'Text' : 'Button';
+        }
+
+        // React Native equivalent shown in the StylePanel subheader.
+        function componentNodeFor(type) {
+          return type === 'Text' ? 'Text' : 'TouchableOpacity';
+        }
+
+        function pluralize(type, n) {
+          return n === 1 ? type : type + 's';
+        }
+
+        // Each .key subtype has a distinctive default background in CSS — seed the styles map
+        // with the matching value so multi-edits can override bg without losing type colour.
+        const TYPE_DEFAULT_BG = {
+          num: '#F5D9A6',
+          op:  '#6B2A19',
+          c:   '#E8EBF5',
+          eq:  '#FF7A33',
+        };
+
+        const DEFAULT_BTN_STYLE = {
+          height: 56,
+          padding: 0,
+          margin: 0,
+          bg: '#F5D9A6',
+          opacity: 100,
+          radius: 10,
+          borderWidth: 0,
+          borderColor: '#151517',
+        };
+
+        const DEFAULT_TITLE_STYLE  = { fontSize: 13, color: '#6B2A19', fontWeight: 500, margin: 0 };
+        const DEFAULT_DISPLAY_STYLE = { fontSize: 34, color: '#6B2A19', fontWeight: 600, margin: 0 };
+
+        function seedButtonStyles() {
+          const out = {};
+          // Buttons — one entry per calculator key.
+          for (const k of CALC_LAYOUT) {
+            out[k.id] = Object.assign({}, DEFAULT_BTN_STYLE, {
+              bg: TYPE_DEFAULT_BG[k.type] || DEFAULT_BTN_STYLE.bg,
+            });
+          }
+          // Texts — title + display.
+          out.tTitle   = Object.assign({}, DEFAULT_TITLE_STYLE);
+          out.tDisplay = Object.assign({}, DEFAULT_DISPLAY_STYLE);
+          // Diverge a couple of radii on load so mixed-value behaviour is visible immediately.
+          out.k2.radius = 12;
+          out.k5.radius = 12;
+          out.k0.radius = 12;
+          return out;
+        }
+
+        const EVENT_CARDS = [
+          { id: 'ev1', title: 'Saturday Morning Trail Cleanup at Riverside Park', meta: '📅 Wed, Apr 22 · 8:00 AM', image: 'a' },
+          { id: 'ev2', title: 'Community Yoga in the Park',                         meta: '📅 Sat, Apr 25 · 9:00 AM', image: 'b' },
+          { id: 'ev3', title: 'Neighborhood Book Swap',                             meta: '📅 Sun, Apr 26 · 2:00 PM', image: 'c' },
+        ];
+
+        const DEFAULT_CARD_STYLE = {
+          radius: 12,
+          padding: 12,
+          margin: 0,
+          borderWidth: 0,
+        };
+
+        // Which ID display labels to use in the avatar stack.
+        function shortLabel(id) {
+          const m = /^k(\d)$/.exec(id);
+          return m ? m[1] : id.slice(0, 2).toUpperCase();
+        }
+
+        // -------------------- Per-editor state --------------------
+
+        const editors = {};
+        // Exposed for inspection / scripted verification. Harmless in normal use.
+        try { window.__editors = editors; } catch (_) { /* no-op */ }
+
+        function initEditors() {
+          editors['a-static'] = {
+            approach: 'a', scenario: 'static', kind: 'calc',
+            styles: seedButtonStyles(),
+            selectedIds: [],
+            // Component type of the current selection. Null when nothing is selected.
+            // Gates shift-click so Buttons and Texts cannot be mixed in one selection.
+            selectionType: null,
+            log: [],
+          };
+          editors['a-dynamic'] = {
+            approach: 'a', scenario: 'dynamic', kind: 'events',
+            templateStyle: Object.assign({}, DEFAULT_CARD_STYLE),
+            anchors: [],
+            log: [],
+          };
+          editors['b-static'] = {
+            approach: 'b', scenario: 'static', kind: 'calc',
+            styles: seedButtonStyles(),
+            anchorId: null,
+            scope: 'one',
+            log: [],
+          };
+          editors['b-dynamic'] = {
+            approach: 'b', scenario: 'dynamic', kind: 'events',
+            templateStyle: Object.assign({}, DEFAULT_CARD_STYLE),
+            anchorCardId: null,
+            log: [],
+          };
+          editors['c-static'] = {
+            approach: 'c', scenario: 'static', kind: 'calc',
+            group: {
+              name: 'Number Key',
+              memberIds: NUM_KEY_IDS.slice(),
+              sharedStyle: Object.assign({}, DEFAULT_BTN_STYLE),
+              styleKey: 'numberKey',
+            },
+            overrides: { k8: { radius: 14 } },
+            activeElementId: 'k8',
+            editMode: 'group',
+            log: [],
+          };
+          editors['c-dynamic'] = {
+            approach: 'c', scenario: 'dynamic', kind: 'events',
+            group: {
+              name: 'EventCard',
+              sharedStyle: Object.assign({}, DEFAULT_CARD_STYLE),
+              styleKey: 'eventCard',
+              auto: true,
+            },
+            anchorCardId: null,
+            editMode: 'group',
+            log: [],
+          };
+        }
+
+        function logEvent(editorKey, msg) {
+          const e = editors[editorKey];
+          e.log.push({ ts: Date.now(), msg });
+          if (e.log.length > 12) e.log.shift();
+        }
+
+        // -------------------- Resolution helpers --------------------
+
+        function numKeyStyleFor(editorKey, id) {
+          const e = editors[editorKey];
+          if (e.approach === 'c') {
+            return Object.assign({}, e.group.sharedStyle, e.overrides[id] || {});
+          }
+          return e.styles[id];
+        }
+
+        function scopeIdsB(e) {
+          if (!e.anchorId) return [];
+          if (e.scope === 'one') return [e.anchorId];
+          return NUM_KEY_IDS.slice();
+        }
+
+        function scopeLabel(scope) {
+          if (scope === 'one') return 'Just this Button';
+          return 'All Buttons on screen';
+        }
+
+        function isInScopeB(e, id) {
+          if (!e.anchorId) return false;
+          if (e.scope === 'one') return id === e.anchorId;
+          return NUM_KEY_IDS.indexOf(id) !== -1;
+        }
+
+        // -------------------- Rendering --------------------
+
+        function renderAll() {
+          Object.keys(editors).forEach(renderEditor);
+        }
+
+        function renderEditor(key) {
+          const root = document.querySelector('[data-editor="' + key + '"]');
+          if (!root) return;
+          const e = editors[key];
+          const stage = root.querySelector('[data-stage]');
+          const panel = root.querySelector('[data-panel]');
+          const chat  = root.querySelector('[data-chat-body]');
+          const body  = root.querySelector('.body');
+          if (stage) stage.innerHTML = renderStage(key, e);
+          if (panel) panel.innerHTML = renderPanel(key, e);
+          if (chat)  chat.innerHTML  = renderChat(key, e);
+          // Mirror real Hikari: StylePanel is an Antd Drawer that only opens when something is selected.
+          if (body) body.classList.toggle('body--no-panel', isSelectionEmpty(e));
+        }
+
+        // True when the selection is empty — in real Hikari the style panel stays closed in this case.
+        function isSelectionEmpty(e) {
+          if (e.kind === 'calc') {
+            if (e.approach === 'a') return e.selectedIds.length === 0;
+            if (e.approach === 'b') return !e.anchorId;
+            return false; // C always has group context
+          }
+          if (e.kind === 'events') {
+            if (e.approach === 'a') return e.anchors.length === 0;
+            if (e.approach === 'b') return !e.anchorCardId;
+            return false; // C auto-group always present
+          }
+          return true;
+        }
+
+        function renderStage(key, e) {
+          if (e.kind === 'calc')   return renderCalcStage(key, e);
+          if (e.kind === 'events') return renderEventsStage(key, e);
+          return '';
+        }
+
+        function renderCalcStage(key, e) {
+          const pill = renderPill(key, e);
+          let html = pill;
+
+          let keys = '';
+          for (const k of CALC_LAYOUT) {
+            const spanCss = k.gridSpan
+              ? 'grid-column:span ' + k.gridSpan + ';'
+              : k.rowSpan
+              ? 'grid-row:span ' + k.rowSpan + ';'
+              : '';
+            let cls = 'key';
+            // Type-specific CSS class still sets the default colour scheme.
+            if (k.type === 'c')       cls += ' c';
+            else if (k.type === 'op') cls += ' op';
+            else if (k.type === 'eq') cls += ' eq';
+
+            // Every key is a Button — selectable and multi-editable, regardless of type.
+            const s = numKeyStyleFor(key, k.id);
+            const extraStyle =
+              'border-radius:' + s.radius + 'px;' +
+              'height:' + s.height + 'px;' +
+              'background:' + s.bg + ';';
+            const dataAttr = 'data-element-id="' + k.id + '"';
+
+            if (e.approach === 'a') {
+              if (e.selectedIds.indexOf(k.id) !== -1) cls += ' selected';
+            } else if (e.approach === 'b') {
+              if (isInScopeB(e, k.id)) cls += ' selected';
+            } else if (e.approach === 'c') {
+              if (e.group.memberIds.indexOf(k.id) !== -1) cls += ' group-selected';
+            }
+
+            keys +=
+              '<div class="' + cls + '" style="' + spanCss + extraStyle + '" ' + dataAttr + '>' +
+              k.label +
+              '</div>';
+          }
+
+          // Title + display are selectable Text components. They share selection rules with
+          // Buttons but cannot be mixed into the same selection.
+          const textStyle = (id, fallback) => {
+            const s = e.styles[id] || fallback;
+            return (
+              'font-size:' + s.fontSize + 'px;' +
+              'color:' + s.color + ';' +
+              'font-weight:' + s.fontWeight + ';' +
+              'margin:' + s.margin + 'px;'
+            );
+          };
+
+          const textCls = (id, base) => {
+            let c = base;
+            if (e.approach === 'a' && e.selectedIds.indexOf(id) !== -1) c += ' selected';
+            return c;
+          };
+
+          html +=
+            '<div class="phone-bezel">' +
+              '<div class="phone">' +
+                '<div class="' + textCls('tTitle', 'calc-title') +
+                  '" data-element-id="tTitle" style="' + textStyle('tTitle', DEFAULT_TITLE_STYLE) + '">' +
+                  'SimpleCalc' +
+                '</div>' +
+                '<div class="' + textCls('tDisplay', 'calc-display') +
+                  '" data-element-id="tDisplay" style="' + textStyle('tDisplay', DEFAULT_DISPLAY_STYLE) + '">' +
+                  '0' +
+                '</div>' +
+                '<div class="calc-grid">' + keys + '</div>' +
+              '</div>' +
+            '</div>';
+          return html;
+        }
+
+        function renderPill() {
+          // Per design: no floating selection banner above the phone — the style panel
+          // on the right already communicates what's selected.
+          return '';
+        }
+
+        function renderEventsStage(key, e) {
+          let pill = '';
+          let tmplStyle;
+          let anchored = false;
+
+          if (e.approach === 'a') {
+            // Per design: no floating banner above the phone on the dynamic list tab.
+            // The style panel on the right already communicates the selected template.
+            tmplStyle = e.templateStyle;
+            anchored = e.anchors.length > 0;
+          } else if (e.approach === 'b') {
+            tmplStyle = e.templateStyle;
+            anchored = !!e.anchorCardId;
+            if (anchored) {
+              pill =
+                '<div class="selection-pill">Scope: List template' +
+                '<span class="chip template">EventCard · 7 + ∞</span>' +
+                '<button type="button" data-action="clear">Deselect</button>' +
+                '</div>';
+            }
+          } else {
+            // C
+            tmplStyle = e.group.sharedStyle;
+            anchored = true;
+            pill =
+              '<div class="selection-pill">Group: EventCard' +
+              '<span class="chip group">Auto · 7 + ∞</span>' +
+              '<button type="button" data-mode="group">Edit group</button>' +
+              '</div>';
+          }
+
+          let cards = '';
+          for (let i = 0; i < EVENT_CARDS.length; i++) {
+            const c = EVENT_CARDS[i];
+            let cls = 'event-card';
+            let badge = '';
+            if (anchored) {
+              if (e.approach === 'c') cls += ' group-selected';
+              else                    cls += ' selected';
+            }
+            const isFirstAnchor =
+              (e.approach === 'a' && e.anchors.indexOf(c.id) !== -1 && c.id === e.anchors[0]) ||
+              (e.approach === 'b' && e.anchorCardId === c.id) ||
+              (e.approach === 'c' && e.anchorCardId === c.id);
+            if (isFirstAnchor) {
+              const tag = e.approach === 'c' ? ' group' : '';
+              badge = '<span class="tmpl-badge' + tag + '">Anchor</span>';
+            }
+            const styleAttr =
+              'border-radius:' + tmplStyle.radius + 'px;' +
+              'padding:' + tmplStyle.padding + 'px 10px;';
+            cards +=
+              '<div class="' + cls + '" data-element-id="' + c.id + '" style="' + styleAttr + '">' +
+              '<div class="event-card-image ' + c.image + '"></div>' +
+              '<div class="event-card-body">' +
+                '<div class="event-card-title">' + c.title + '</div>' +
+                '<div class="event-card-meta">' + c.meta + '</div>' +
+              '</div>' +
+              badge +
+              '</div>';
+          }
+
+          const futureClass = e.approach === 'c' ? ' group' : '';
+          const futureText = e.approach === 'c'
+            ? '+ 4 more rendered · future items inherit this group'
+            : '+ 4 more rendered · future items inherit this template';
+
+          return (
+            pill +
+            '<div class="phone-bezel">' +
+              '<div class="phone">' +
+                '<div class="phone-title">Upcoming Events</div>' +
+                '<div class="phone-subtitle">Discover what\'s happening</div>' +
+                '<div class="events-list">' + cards +
+                  '<div class="future-indicator' + futureClass + '">' + futureText + '</div>' +
+                '</div>' +
+                '<div class="phone-tabbar">' +
+                  '<div class="tab active"><span class="ic">📅</span>Events</div>' +
+                  '<div class="tab"><span class="ic">🔖</span>My Events</div>' +
+                  '<div class="tab"><span class="ic">ⓘ</span>About</div>' +
+                '</div>' +
+              '</div>' +
+            '</div>'
+          );
+        }
+
+        // -------- Panel --------
+
+        function renderPanel(key, e) {
+          if (e.kind === 'calc')   return renderCalcPanel(key, e);
+          if (e.kind === 'events') return renderEventsPanel(key, e);
+          return '';
+        }
+
+        function renderCalcPanel(key, e) {
+          let headerTitle = '';
+          let subheader = '';
+          let multiToolbar = '';
+          let scopeControl = '';
+          let appliesTo = '';
+          let ids = [];
+          let empty = '';
+
+          if (e.approach === 'a') {
+            ids = e.selectedIds.slice();
+            if (ids.length === 0) {
+              return emptyPanel(
+                'No selection',
+                'Click any element on the phone — a Button or a Text. Shift-click to add more of the same type.'
+              );
+            }
+            // Header pluralises the component type ("Button" / "Buttons", "Text" / "Texts").
+            const type = e.selectionType || componentTypeOf(ids[0]);
+            const node = componentNodeFor(type);
+            headerTitle = pluralize(type, ids.length);
+            subheader = ids.length === 1
+              ? node + ' · ' + ids[0]
+              : node + ' · ' + ids.length + ' instances';
+          } else if (e.approach === 'b') {
+            if (!e.anchorId) {
+              return emptyPanel(
+                'No selection',
+                'Click one Button. Scope defaults to "On screen" so you see the fanout immediately.'
+              );
+            }
+            ids = scopeIdsB(e);
+            headerTitle = ids.length > 1 ? 'Buttons' : 'Button';
+            subheader = 'TouchableOpacity · ' + e.anchorId + ' · anchor';
+            if (ids.length > 1) {
+              multiToolbar = renderMultiToolbar(
+                ids,
+                ids.length + ' Buttons in scope',
+                'Edits apply to all ' + ids.length + ' on this screen'
+              );
+            }
+            scopeControl =
+              '<div class="scope-control">' +
+                '<span class="label">Scope</span>' +
+                '<div class="scope-toggle">' +
+                  scopeButton(e, 'one',    'This',      1) +
+                  scopeButton(e, 'screen', 'On screen', 10) +
+                '</div>' +
+              '</div>';
+            appliesTo =
+              '<div class="applies-to">' +
+                '<span class="dot"></span>' +
+                '<span>Edits apply to ' + ids.length + ' ' + (ids.length === 1 ? 'Button' : 'Buttons') +
+                ' · ' + (ids.length === 1 ? 'only the anchor' : 'same-type siblings in the current scope') +
+                '. Flip the toggle above to change.</span>' +
+              '</div>';
+          } else {
+            // C
+            if (e.editMode === 'group') {
+              ids = e.group.memberIds.slice();
+              headerTitle = e.group.name;
+              multiToolbar = renderGroupToolbar(e);
+            } else {
+              ids = [e.activeElementId];
+              headerTitle = e.activeElementId + ' · instance';
+              multiToolbar = renderGroupToolbar(e);
+            }
+            subheader = 'TouchableOpacity · ' + e.activeElementId + ' · anchor';
+            const ovrCount = Object.keys(e.overrides).length;
+            scopeControl =
+              '<div class="group-meta">' +
+                '<span>Shared style <code>styles.' + e.group.styleKey + '</code></span>' +
+                '<span class="override-pill">' + (ovrCount === 1 ? '1 override' : ovrCount + ' overrides') + '</span>' +
+              '</div>' +
+              '<div class="scope-control">' +
+                '<span class="label">Edit target</span>' +
+                '<div class="scope-toggle">' +
+                  modeButton(e, 'group',    'Edit group',    e.group.memberIds.length) +
+                  modeButton(e, 'instance', 'This instance', 1) +
+                '</div>' +
+              '</div>';
+            appliesTo = e.editMode === 'group'
+              ? '<div class="applies-to group"><span class="dot"></span><span>Editing the <b>' + e.group.name +
+                '</b> group · changes push to all ' + e.group.memberIds.length +
+                ' members via <code>styles.' + e.group.styleKey + '</code>.</span></div>'
+              : '<div class="applies-to"><span class="dot"></span><span>Editing <b>' + e.activeElementId +
+                '</b> only · creates a per-instance override. Other group members won\'t change.</span></div>';
+          }
+
+          const props = renderCalcProperties(key, e, ids);
+
+          return (
+            '<div class="panel-header">' +
+              '<h3><span class="x">✕</span>&nbsp;' + headerTitle + '</h3>' +
+              '<span class="go-to-code">Go to Code</span>' +
+            '</div>' +
+            multiToolbar +
+            '<div class="panel-subheader"><span>' + subheader + '</span></div>' +
+            scopeControl +
+            appliesTo +
+            props
+          );
+        }
+
+        function emptyPanel(title, message) {
+          return (
+            '<div class="panel-header"><h3>' + title + '</h3></div>' +
+            '<div class="panel-empty">' + message +
+            '<span class="hint">(try it — the mockup is live)</span></div>'
+          );
+        }
+
+        function scopeButton(e, scope, label, count) {
+          const active = e.scope === scope;
+          return (
+            '<button type="button" data-scope="' + scope + '" class="' + (active ? 'active' : '') + '">' +
+            label + ' <span class="count">' + count + '</span>' +
+            '</button>'
+          );
+        }
+
+        function modeButton(e, mode, label, count) {
+          const active = e.editMode === mode;
+          return (
+            '<button type="button" data-mode="' + mode + '" class="' + (active ? 'active' : '') + '">' +
+            label + ' <span class="count">' + count + '</span>' +
+            '</button>'
+          );
+        }
+
+        function renderMultiToolbar(ids, summary, sub) {
+          const first3 = ids.slice(0, 3).map(shortLabel);
+          const remaining = Math.max(0, ids.length - 3);
+          let stack = first3.map((x) => '<div class="a">' + x + '</div>').join('');
+          if (remaining) stack += '<div class="a more">+' + remaining + '</div>';
+          return (
+            '<div class="multi-toolbar">' +
+              '<div class="avatar-stack">' + stack + '</div>' +
+              '<div>' +
+                '<div class="summary">' + summary + '</div>' +
+                '<div class="sub">' + sub + '</div>' +
+              '</div>' +
+              '<span class="unlink" data-action="clear">Clear</span>' +
+            '</div>'
+          );
+        }
+
+        function renderGroupToolbar(e) {
+          const members = e.group.memberIds;
+          const first3 = members.slice(0, 3).map(shortLabel);
+          const remaining = Math.max(0, members.length - 3);
+          let stack = first3.map((x) => '<div class="a group">' + x + '</div>').join('');
+          if (remaining) stack += '<div class="a more group">+' + remaining + '</div>';
+          return (
+            '<div class="multi-toolbar group">' +
+              '<div class="avatar-stack">' + stack + '</div>' +
+              '<div>' +
+                '<div class="summary">Group · ' + members.length + ' members</div>' +
+                '<div class="sub">Shared style · <code>styles.' + e.group.styleKey + '</code></div>' +
+              '</div>' +
+              '<span class="unlink" data-action="ungroup">Ungroup</span>' +
+            '</div>'
+          );
+        }
+
+        function renderCalcProperties(key, e, ids) {
+          if (ids.length === 0) return '';
+
+          function valueFor(id, prop) {
+            if (e.approach === 'c') {
+              if (e.editMode === 'instance' && e.overrides[id] && prop in e.overrides[id]) {
+                return e.overrides[id][prop];
+              }
+              return e.group.sharedStyle[prop];
+            }
+            return e.styles[id][prop];
+          }
+
+          function sharedValue(prop) {
+            const vals = ids.map((id) => valueFor(id, prop));
+            const unique = Array.from(new Set(vals));
+            return unique.length === 1
+              ? { kind: 'shared', value: unique[0] }
+              : { kind: 'mixed', values: unique };
+          }
+
+          function overrideDotFor(prop) {
+            if (e.approach !== 'c') return '';
+            if (e.editMode === 'group') {
+              const hasAny = Object.keys(e.overrides).some(
+                (id) => prop in e.overrides[id]
+              );
+              return hasAny
+                ? '<span class="override-dot" title="Override on one or more members"></span>'
+                : '';
+            }
+            const ovr = e.overrides[e.activeElementId];
+            if (ovr && prop in ovr) {
+              return (
+                '<span class="override-dot" data-revert-override="' + prop +
+                '" title="Override — click to revert"></span>'
+              );
+            }
+            return '';
+          }
+
+          function rowNumber(label, prop, min, max) {
+            const v = sharedValue(prop);
+            const dot = overrideDotFor(prop);
+            if (v.kind === 'mixed') {
+              // Diverging values render as a blank input — no "Mixed" label or preview.
+              return (
+                '<div class="prop-row">' +
+                  '<label>' + label + dot + '</label>' +
+                  '<input class="input mixed" type="number" min="' + min + '" max="' + max +
+                  '" data-prop="' + prop + '" value="" placeholder="" />' +
+                '</div>'
+              );
+            }
+            return (
+              '<div class="prop-row">' +
+                '<label>' + label + dot + '</label>' +
+                '<input class="input" type="number" min="' + min + '" max="' + max +
+                '" data-prop="' + prop + '" value="' + v.value + '" />' +
+              '</div>'
+            );
+          }
+
+          function rowReadOnly(label, prop, kind) {
+            const v = sharedValue(prop);
+            if (v.kind === 'mixed') {
+              // Blank cell when values diverge — no "Mixed" label.
+              return '<div class="prop-row"><label>' + label + '</label><div class="input mixed"></div></div>';
+            }
+            if (kind === 'color') {
+              return (
+                '<div class="prop-row"><label>' + label + '</label><div class="input">' +
+                '<span class="swatch" style="background:' + v.value + ';"></span>&nbsp;' + v.value +
+                '</div></div>'
+              );
+            }
+            return '<div class="prop-row"><label>' + label + '</label><div class="input">' + (v.value == null ? '—' : v.value) + '</div></div>';
+          }
+
+          // Pick property rows based on the selection's component type.
+          const selectionType = e.selectionType || componentTypeOf(ids[0]);
+
+          if (selectionType === 'Text') {
+            return (
+              '<div class="collapse-section">' +
+                '<div class="collapse-header"><span class="chev">▾</span> Typography</div>' +
+                '<div class="collapse-body">' +
+                  rowNumber('Font Size',   'fontSize',   8, 72) +
+                  rowReadOnly('Color',     'color',      'color') +
+                  rowNumber('Font Weight', 'fontWeight', 100, 900) +
+                '</div>' +
+              '</div>' +
+              '<div class="collapse-section">' +
+                '<div class="collapse-header"><span class="chev">▾</span> Layout</div>' +
+                '<div class="collapse-body">' +
+                  rowNumber('Margin', 'margin', 0, 32) +
+                '</div>' +
+              '</div>'
+            );
+          }
+
+          // Button (default) — existing layout + appearance rows.
+          return (
+            '<div class="collapse-section">' +
+              '<div class="collapse-header"><span class="chev">▾</span> Layout</div>' +
+              '<div class="collapse-body">' +
+                '<div class="prop-row"><label>Width</label><div class="input"><span class="placeholder">auto</span></div></div>' +
+                rowNumber('Height',  'height',  40, 96) +
+                rowNumber('Padding', 'padding', 0, 32) +
+                rowNumber('Margin',  'margin',  0, 32) +
+              '</div>' +
+            '</div>' +
+            '<div class="collapse-section">' +
+              '<div class="collapse-header"><span class="chev">▾</span> Appearance</div>' +
+              '<div class="collapse-body">' +
+                rowReadOnly('Background', 'bg', 'color') +
+                rowNumber('Border Radius', 'radius',      0, 40) +
+                rowNumber('Border Width',  'borderWidth', 0, 6) +
+                rowReadOnly('Border Color', 'borderColor', 'color') +
+              '</div>' +
+            '</div>'
+          );
+        }
+
+        function renderEventsPanel(key, e) {
+          let headerTitle = 'EventCard';
+          let multiToolbar = '';
+          let scopeControl = '';
+          let appliesTo = '';
+          let tmplStyle;
+
+          if (e.approach === 'a') {
+            tmplStyle = e.templateStyle;
+            if (e.anchors.length === 0) {
+              return emptyPanel(
+                'No selection',
+                'Click an event card. Selection folds to the shared FlatList template — edits propagate to all rendered cards plus any added at runtime.'
+              );
+            }
+            // Per design: no "7 rendered · future items inherit" multi-toolbar at the top.
+            // The applies-to note below already explains the template fan-out.
+            appliesTo =
+              '<div class="applies-to template">' +
+                '<span class="dot"></span>' +
+                '<span>Multi-select isn\'t available — these cards share one source definition. Every edit propagates to all current <b>and future</b> items.</span>' +
+              '</div>';
+          } else if (e.approach === 'b') {
+            tmplStyle = e.templateStyle;
+            if (!e.anchorCardId) {
+              return emptyPanel(
+                'No selection',
+                'Click one card. Scope locks to the List template — per-instance edits aren\'t supported in V1 because dynamic items don\'t have unique source definitions.'
+              );
+            }
+            multiToolbar =
+              '<div class="multi-toolbar template">' +
+                '<div class="avatar-stack">' +
+                  '<div class="a">1</div><div class="a">2</div><div class="a">3</div><div class="a inf">∞</div>' +
+                '</div>' +
+                '<div>' +
+                  '<div class="summary">List template scope</div>' +
+                  '<div class="sub">7 rendered · future items inherit</div>' +
+                '</div>' +
+              '</div>';
+            scopeControl =
+              '<div class="scope-control">' +
+                '<span class="label">Scope</span>' +
+                '<div class="scope-toggle">' +
+                  '<button type="button" disabled title="Cards share one source — per-instance edits aren\'t supported in V1">' +
+                    'This instance <span class="count">1</span>' +
+                  '</button>' +
+                  '<button type="button" class="active template">List template <span class="count">7 + ∞</span></button>' +
+                '</div>' +
+              '</div>';
+            appliesTo =
+              '<div class="applies-to template">' +
+                '<span class="dot"></span>' +
+                '<span>Edits apply to the list template. 7 current cards update live; any card added at runtime inherits the new style.</span>' +
+              '</div>';
+          } else {
+            // C
+            tmplStyle = e.group.sharedStyle;
+            multiToolbar =
+              '<div class="multi-toolbar group auto">' +
+                '<div class="avatar-stack">' +
+                  '<div class="a group">1</div><div class="a group">2</div><div class="a group">3</div><div class="a inf group">∞</div>' +
+                '</div>' +
+                '<div>' +
+                  '<div class="summary">Auto-group · list</div>' +
+                  '<div class="sub">Shared style · <code>styles.' + e.group.styleKey + '</code></div>' +
+                '</div>' +
+              '</div>';
+            scopeControl =
+              '<div class="group-meta">' +
+                '<span>Shared style <code>styles.' + e.group.styleKey + '</code></span>' +
+                '<span class="override-pill">Auto · list</span>' +
+              '</div>';
+            appliesTo =
+              '<div class="applies-to group">' +
+                '<span class="dot"></span>' +
+                '<span>Editing auto-group <b>EventCard</b>. Changes write to <code>styles.' +
+                e.group.styleKey + '</code> and apply to all rendered cards + future runtime items.</span>' +
+              '</div>';
+          }
+
+          const props = renderCardProperties(tmplStyle);
+          return (
+            '<div class="panel-header">' +
+              '<h3><span class="x">✕</span>&nbsp;' + headerTitle + '</h3>' +
+              '<span class="go-to-code">Go to Code</span>' +
+            '</div>' +
+            multiToolbar +
+            '<div class="panel-subheader"><span>TouchableOpacity · FlatList.renderItem</span></div>' +
+            scopeControl +
+            appliesTo +
+            props
+          );
+        }
+
+        function renderCardProperties(s) {
+          function num(label, prop, min, max) {
+            return (
+              '<div class="prop-row">' +
+                '<label>' + label + '</label>' +
+                '<input class="input" type="number" min="' + min + '" max="' + max +
+                '" data-prop="' + prop + '" value="' + s[prop] + '" />' +
+              '</div>'
+            );
+          }
+          return (
+            '<div class="collapse-section">' +
+              '<div class="collapse-header"><span class="chev">▾</span> Layout</div>' +
+              '<div class="collapse-body">' +
+                '<div class="prop-row"><label>Width</label><div class="input"><span class="placeholder">auto</span></div></div>' +
+                '<div class="prop-row"><label>Height</label><div class="input"><span class="placeholder">auto</span></div></div>' +
+                num('Padding', 'padding', 0, 32) +
+                num('Margin',  'margin',  0, 32) +
+              '</div>' +
+            '</div>' +
+            '<div class="collapse-section">' +
+              '<div class="collapse-header"><span class="chev">▾</span> Appearance</div>' +
+              '<div class="collapse-body">' +
+                '<div class="prop-row"><label>Background</label><div class="input"><span class="swatch white-translucent"></span>&nbsp;rgba(255,255,255,.65)</div></div>' +
+                num('Border Radius', 'radius',      0, 40) +
+                num('Border Width',  'borderWidth', 0, 6) +
+                '<div class="prop-row"><label>Border Color</label><div class="input"><span class="swatch warm-deep"></span>&nbsp;#6B2A19</div></div>' +
+              '</div>' +
+            '</div>'
+          );
+        }
+
+        function renderChat(key, e) {
+          // Mirror real Hikari conversation: date separator → user prompt bubble →
+          // assistant response card (success summary + actions) → step-by-step log → token pill.
+          const dateLine = '<div class="chat-divider">Apr 22</div>';
+
+          const userPrompt = initialPromptFor(key, e);
+          const userBubble =
+            '<div class="chat-user">' +
+              '<div class="chat-user-bubble">' + userPrompt + '</div>' +
+            '</div>';
+
+          const response = responseCardFor(key, e);
+
+          const stepsDivider = '<div class="chat-divider">Live interaction log</div>';
+          const steps = e.log.length === 0
+            ? '<div class="chat-log-line waiting">Waiting for interaction…</div>'
+            : e.log.map((l) =>
+                '<div class="chat-log-line"><span class="dot">✓</span> <span>' + l.msg + '</span></div>'
+              ).join('');
+
+          const tokenPill =
+            '<div class="chat-token-pill" title="Tokens used by this turn">' +
+              '<span>◔</span><span>3.1k in · 892 out</span>' +
+            '</div>';
+
+          return dateLine + userBubble + response + stepsDivider + steps + tokenPill;
+        }
+
+        function initialPromptFor(key, e) {
+          if (e.kind === 'calc') {
+            return 'Build me a minimalist warm-toned calculator with rounded buttons.';
+          }
+          if (e.kind === 'events') {
+            return 'Generate a events listing screen with cards pulling from Supabase.';
+          }
+          return 'Start a new app.';
+        }
+
+        function responseCardFor(key, e) {
+          const title = e.kind === 'calc'
+            ? 'Calculator ready to go.'
+            : 'Events screen is live.';
+          const summary = e.kind === 'calc'
+            ? '10 number keys, 4 ops, and an equals wired up with FlatList-style layout. Tap any number to style it.'
+            : '7 cards rendered from the <code>events</code> table. Tap a card to see multi-edit options.';
+          return (
+            '<div class="chat-response">' +
+              '<div class="chat-response-metadata-summary">' +
+                '<div class="title"><span class="check">✓</span>' + title + '</div>' +
+                '<div>' + summary + '</div>' +
+              '</div>' +
+              '<div class="chat-response-actions">' +
+                '<button type="button" class="show-preview">Show Preview</button>' +
+                '<button type="button" class="show-code">Show Code</button>' +
+              '</div>' +
+            '</div>'
+          );
+        }
+
+        // -------------------- Event handling --------------------
+
+        function getEditorKey(el) {
+          const ed = el.closest('[data-editor]');
+          return ed ? ed.dataset.editor : null;
+        }
+
+        function onElementClick(editorKey, id, ev) {
+          const e = editors[editorKey];
+          const shift = ev.shiftKey || ev.metaKey || ev.ctrlKey;
+
+          if (e.approach === 'a') {
+            if (e.kind === 'calc') {
+              const incomingType = componentTypeOf(id);
+              if (shift) {
+                // Type-exclusive selection: block shift-add when kinds don't match.
+                if (e.selectionType && e.selectionType !== incomingType) {
+                  logEvent(editorKey,
+                    'Can\'t mix <code>' + e.selectionType + '</code> and <code>' +
+                    incomingType + '</code> in one selection — clear and start again.'
+                  );
+                  return;
+                }
+                const idx = e.selectedIds.indexOf(id);
+                if (idx === -1) {
+                  e.selectedIds.push(id);
+                  e.selectionType = incomingType;
+                  logEvent(editorKey,
+                    'Added <code>' + id + '</code> · ' + e.selectedIds.length + ' ' +
+                    pluralize(e.selectionType, e.selectedIds.length) + ' selected'
+                  );
+                } else {
+                  e.selectedIds.splice(idx, 1);
+                  if (e.selectedIds.length === 0) e.selectionType = null;
+                  logEvent(editorKey,
+                    'Removed <code>' + id + '</code> · ' + e.selectedIds.length + ' selected'
+                  );
+                }
+              } else {
+                // Plain click replaces the selection and resets its type.
+                e.selectedIds = [id];
+                e.selectionType = incomingType;
+                logEvent(editorKey,
+                  'Selected <code>' + id + '</code> (' + incomingType + ') — click replaces'
+                );
+              }
+            } else {
+              e.anchors = [id];
+              logEvent(editorKey, 'Clicked <code>' + id + '</code> · collapsed to EventCard template · applies to 7 + ∞');
+            }
+          } else if (e.approach === 'b') {
+            if (e.kind === 'calc') {
+              e.anchorId = id;
+              if (e.scope === 'one' && !e._seenFirstClick) {
+                e.scope = 'screen';
+                e._seenFirstClick = true;
+              }
+              logEvent(editorKey, 'Anchor = <code>' + id + '</code> · scope: ' + scopeLabel(e.scope).toLowerCase());
+            } else {
+              e.anchorCardId = id;
+              logEvent(editorKey, 'Clicked <code>' + id + '</code> · locked to List template · 7 + ∞');
+            }
+          } else if (e.approach === 'c') {
+            if (e.kind === 'calc') {
+              if (e.group.memberIds.indexOf(id) !== -1) {
+                e.activeElementId = id;
+                logEvent(editorKey, 'Active member = <code>' + id + '</code> · mode: ' + e.editMode);
+              }
+            } else {
+              e.anchorCardId = id;
+              logEvent(editorKey, 'Clicked <code>' + id + '</code> · member of auto-group EventCard');
+            }
+          }
+          renderEditor(editorKey);
+        }
+
+        function onStageEmptyClick(editorKey) {
+          const e = editors[editorKey];
+          if (e.approach === 'a' && e.kind === 'calc' && e.selectedIds.length > 0) {
+            e.selectedIds = [];
+            e.selectionType = null;
+            logEvent(editorKey, 'Cleared selection (clicked empty stage)');
+            renderEditor(editorKey);
+          }
+        }
+
+        function handleStageClick(ev) {
+          const editorKey = getEditorKey(ev.target);
+          if (!editorKey) return;
+          const stage = ev.target.closest('[data-stage]');
+          if (!stage) return;
+
+          const el = ev.target.closest('[data-element-id]');
+          if (el) {
+            onElementClick(editorKey, el.dataset.elementId, ev);
+            return;
+          }
+          onStageEmptyClick(editorKey);
+        }
+
+        function handlePanelClick(ev) {
+          const editorKey = getEditorKey(ev.target);
+          if (!editorKey) return;
+          const panel = ev.target.closest('[data-panel]');
+          if (!panel) return;
+
+          const e = editors[editorKey];
+          const tgt = ev.target;
+
+          // Revert an override dot (only exists when editMode=instance).
+          const revertEl = tgt.closest('[data-revert-override]');
+          if (revertEl) {
+            const prop = revertEl.dataset.revertOverride;
+            const ovr = e.overrides[e.activeElementId];
+            if (ovr && prop in ovr) {
+              delete ovr[prop];
+              if (Object.keys(ovr).length === 0) delete e.overrides[e.activeElementId];
+              logEvent(editorKey, 'Reverted override · <code>' + e.activeElementId + '.' + prop + '</code>');
+              renderEditor(editorKey);
+            }
+            return;
+          }
+
+          const actionEl = tgt.closest('[data-action]');
+          if (actionEl) {
+            const action = actionEl.dataset.action;
+            if (action === 'clear') {
+              if (e.approach === 'a') {
+                if (e.kind === 'calc')   { e.selectedIds = []; e.selectionType = null; }
+                if (e.kind === 'events') e.anchors = [];
+              } else if (e.approach === 'b') {
+                if (e.kind === 'calc') { e.anchorId = null; e.scope = 'one'; e._seenFirstClick = false; }
+                else                   { e.anchorCardId = null; }
+              }
+              logEvent(editorKey, 'Cleared selection');
+              renderEditor(editorKey);
+            } else if (action === 'ungroup') {
+              logEvent(editorKey, '(demo) Ungroup would inline shared style back into each member');
+            } else if (action === 'reset-log') {
+              e.log = [];
+              renderEditor(editorKey);
+            }
+            return;
+          }
+
+          const scopeEl = tgt.closest('[data-scope]');
+          if (scopeEl) {
+            e.scope = scopeEl.dataset.scope;
+            logEvent(editorKey, 'Scope → <code>' + e.scope + '</code> · ' + scopeIdsB(e).length + ' in scope');
+            renderEditor(editorKey);
+            return;
+          }
+
+          const modeEl = tgt.closest('[data-mode]');
+          if (modeEl) {
+            e.editMode = modeEl.dataset.mode;
+            logEvent(editorKey, 'Edit mode → <code>' + e.editMode + '</code>');
+            renderEditor(editorKey);
+            return;
+          }
+        }
+
+        // Chat column "Clear log" button lives outside [data-panel], so handle separately.
+        function handleChatActions(ev) {
+          const actionEl = ev.target.closest('[data-action]');
+          if (!actionEl) return;
+          if (actionEl.dataset.action !== 'reset-log') return;
+          const editorKey = getEditorKey(actionEl);
+          if (!editorKey) return;
+          const e = editors[editorKey];
+          e.log = [];
+          renderEditor(editorKey);
+        }
+
+        function handlePanelInput(ev) {
+          const el = ev.target;
+          if (!el.dataset || !el.dataset.prop) return;
+          const editorKey = getEditorKey(el);
+          if (!editorKey) return;
+          const prop = el.dataset.prop;
+          const raw = el.value;
+          const n = Number(raw);
+          if (Number.isNaN(n)) return;
+
+          applyPropChange(editorKey, prop, n);
+        }
+
+        function applyPropChange(editorKey, prop, value) {
+          const e = editors[editorKey];
+
+          if (e.approach === 'a') {
+            if (e.kind === 'calc') {
+              if (e.selectedIds.length === 0) return;
+              for (const id of e.selectedIds) e.styles[id][prop] = value;
+              logEvent(editorKey,
+                '<code>modifyStyles</code> · ' + prop + ' = ' + value + ' · fan-out: ' + e.selectedIds.length + ' testID' + (e.selectedIds.length === 1 ? '' : 's')
+              );
+            } else {
+              e.templateStyle[prop] = value;
+              logEvent(editorKey, 'Template ' + prop + ' = ' + value + ' · fans out to 7 + ∞ items');
+            }
+          } else if (e.approach === 'b') {
+            if (e.kind === 'calc') {
+              const ids = scopeIdsB(e);
+              if (ids.length === 0) return;
+              for (const id of ids) e.styles[id][prop] = value;
+              logEvent(editorKey,
+                'peerFinder(' + e.anchorId + ', scope=' + e.scope + ') → [' + ids.length + ' peers]; ' +
+                prop + ' = ' + value
+              );
+            } else {
+              e.templateStyle[prop] = value;
+              logEvent(editorKey, 'Template ' + prop + ' = ' + value + ' · locked scope · 7 + ∞');
+            }
+          } else if (e.approach === 'c') {
+            if (e.kind === 'calc') {
+              if (e.editMode === 'group') {
+                e.group.sharedStyle[prop] = value;
+                logEvent(editorKey,
+                  '<code>styles.' + e.group.styleKey + '.' + prop + '</code> = ' + value +
+                  ' · ' + e.group.memberIds.length + ' members updated'
+                );
+              } else {
+                if (!e.overrides[e.activeElementId]) e.overrides[e.activeElementId] = {};
+                e.overrides[e.activeElementId][prop] = value;
+                logEvent(editorKey,
+                  'Override on <code>' + e.activeElementId + '</code> · ' + prop + ' = ' + value
+                );
+              }
+            } else {
+              e.group.sharedStyle[prop] = value;
+              logEvent(editorKey,
+                '<code>styles.' + e.group.styleKey + '.' + prop + '</code> = ' + value +
+                ' · auto-group applied to 7 + ∞'
+              );
+            }
+          }
+          renderEditor(editorKey);
+        }
+
+        // -------------------- Navigation --------------------
+
+        function showApproach(name) {
+          const pages = document.querySelectorAll('.approach-page');
+          let matched = false;
+          pages.forEach((p) => {
+            const match = p.dataset.approach === name;
+            p.classList.toggle('visible', match);
+            if (match) matched = true;
+          });
+          if (!matched && pages.length) {
+            pages[0].classList.add('visible');
+            name = pages[0].dataset.approach;
+          }
+          document.querySelectorAll('.primary-nav button[data-approach]').forEach((b) => {
+            b.classList.toggle('active', b.dataset.approach === name);
+          });
+          try { window.scrollTo({ top: 0, behavior: 'instant' }); }
+          catch (_) { window.scrollTo(0, 0); }
+        }
+
+        function init() {
+          initEditors();
+          renderAll();
+
+          document.querySelectorAll('.primary-nav button[data-approach]').forEach((b) => {
+            b.addEventListener('click', (ev) => {
+              ev.preventDefault();
+              ev.stopPropagation();
+              showApproach(b.dataset.approach);
+            });
+          });
+
+          document.querySelectorAll('.scenario-tabs').forEach((tabs) => {
+            tabs.querySelectorAll('button').forEach((btn) => {
+              btn.addEventListener('click', (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                const page = btn.closest('.approach-page');
+                const target = btn.dataset.scenario;
+                page.querySelectorAll('.scenario-tabs button').forEach((x) =>
+                  x.classList.toggle('active', x.dataset.scenario === target)
+                );
+                page.querySelectorAll('.scenario').forEach((s) =>
+                  s.classList.toggle('visible', s.dataset.scenario === target)
+                );
+              });
+            });
+          });
+
+          document.addEventListener('click', (ev) => {
+            handleStageClick(ev);
+            handlePanelClick(ev);
+            handleChatActions(ev);
+          });
+          document.addEventListener('input', handlePanelInput);
+
+          showApproach('a');
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', init);
+        } else {
+          init();
+        }
+      })();
+    </script>
+  </body>
+</html>
