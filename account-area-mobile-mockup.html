@@ -116,6 +116,8 @@
   .stage[data-vp="vp-full"]     .stage-inner { max-width: 100%; }
 
   /* ---------- app shell (container queries scope) ---------- */
+  /* Behaves like a phone screen: fixed height, header/tabs pinned,
+     content scrolls inside .app-scroll. Modal overlays the whole shell. */
   .app-shell {
     background: var(--bg);
     border: 1px solid #d1d5db;
@@ -124,7 +126,21 @@
     box-shadow: var(--shadow-2);
     container-type: inline-size;
     container-name: app;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 160px);
     min-height: 720px;
+    max-height: 900px;
+  }
+  .app-header { flex: 0 0 var(--header-h); }
+  .tabs       { flex: 0 0 var(--tabs-h); }
+  .app-scroll {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    background: var(--bg);
   }
 
   /* ---------- top header ---------- */
@@ -755,6 +771,275 @@
     input, textarea, select { font-size: 16px; }
   }
 
+  /* =================================================
+     UPGRADE MODAL (Membership → Get <Plan>)
+     ================================================= */
+  .um-back {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    z-index: 50;
+    display: none;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+  .um-back[data-open="true"] { display: flex; }
+  .um-shell {
+    background: #fff;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  @container app (min-width: 768px) {
+    .um-back {
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .um-shell {
+      width: 100%;
+      max-width: 980px;
+      max-height: 100%;
+      height: auto;
+      border-radius: 14px;
+      box-shadow: var(--shadow-2);
+    }
+  }
+  .um-head {
+    flex: 0 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--s-4) var(--s-4);
+    border-bottom: 1px solid var(--border);
+    gap: var(--s-3);
+  }
+  .um-head .um-title {
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 1.3;
+  }
+  .um-head .um-close {
+    width: 32px; height: 32px;
+    border: 0; background: transparent;
+    color: var(--ink-3); font-size: 20px;
+    border-radius: 50%;
+    flex: 0 0 32px;
+  }
+
+  .um-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-5);
+    padding: var(--s-4);
+  }
+  @container app (min-width: 768px) {
+    .um-body {
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: var(--s-5);
+      padding: var(--s-5);
+    }
+  }
+  @container app (min-width: 900px) {
+    .um-body { grid-template-columns: minmax(0, 1fr) 360px; }
+  }
+
+  .um-section + .um-section { margin-top: var(--s-4); }
+  .um-section h3 {
+    margin: 0 0 var(--s-2);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .um-radios {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-2);
+  }
+  @container app (min-width: 600px) {
+    .um-radios { grid-template-columns: 1fr 1fr; }
+  }
+  .um-radio {
+    position: relative;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-2);
+    padding: 12px 14px 12px 38px;
+    background: #fff;
+    text-align: left;
+    min-height: 56px;
+    display: flex; flex-direction: column; justify-content: center;
+    gap: 2px;
+  }
+  .um-radio:hover { border-color: var(--ink-4); }
+  .um-radio[aria-pressed="true"] {
+    border-color: var(--brand);
+    box-shadow: inset 0 0 0 1px var(--brand);
+  }
+  .um-radio::before {
+    content: "";
+    position: absolute;
+    top: 50%; left: 14px;
+    transform: translateY(-50%);
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--border-strong);
+    background: #fff;
+  }
+  .um-radio[aria-pressed="true"]::before {
+    border-color: var(--brand);
+    background: radial-gradient(circle, var(--brand) 40%, #fff 45%);
+  }
+  .um-radio .lead { font-weight: 600; font-size: 14px; }
+  .um-radio .sub  { color: var(--ink-3); font-size: 12px; }
+  .um-radio .logos {
+    display: inline-flex; gap: 4px; align-items: center;
+    margin-left: auto;
+  }
+  .um-radio .logos span {
+    display: inline-block; height: 14px; padding: 0 4px;
+    border-radius: 2px;
+    background: #f1f5f9;
+    color: var(--ink-3);
+    font-size: 9px; font-weight: 700;
+    line-height: 14px;
+    letter-spacing: 0.04em;
+  }
+  .um-radio .save-pill {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+    padding: 2px 6px; border-radius: 999px;
+  }
+
+  /* card form */
+  .um-field {
+    display: flex; flex-direction: column; gap: 4px;
+    margin-bottom: var(--s-3);
+  }
+  .um-field label {
+    font-size: 12px; color: var(--ink-2); font-weight: 600;
+  }
+  .um-disclaimer {
+    color: var(--ink-3); font-size: 12px;
+    line-height: 1.5;
+    margin: var(--s-2) 0 0;
+  }
+
+  /* sub-tabs (Card / Google Pay) — bordered pill */
+  .um-paytab {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid var(--border);
+    border-radius: var(--r-2);
+    overflow: hidden;
+    margin-bottom: var(--s-3);
+  }
+  .um-paytab button {
+    border: 0; background: #fff;
+    padding: 12px;
+    font-size: 13px; font-weight: 600;
+    color: var(--ink-3);
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .um-paytab button[aria-pressed="true"] {
+    background: #fff;
+    color: var(--brand);
+    box-shadow: inset 0 -2px 0 var(--brand);
+  }
+  .um-paytab button:not([aria-pressed="true"]) {
+    background: #f8fafc;
+  }
+  .um-paytab .gpay-chip {
+    display: inline-flex; align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: #5f6368;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  /* review column */
+  .um-review {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: var(--r-3);
+    padding: var(--s-4);
+  }
+  .um-review h3 {
+    margin: 0 0 var(--s-2);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .um-target {
+    font-weight: 600; font-size: 15px;
+    margin-bottom: var(--s-3);
+  }
+  .um-review h4 {
+    margin: var(--s-3) 0 4px;
+    font-size: 12px; font-weight: 700;
+    color: var(--ink-1);
+  }
+  .um-review ul {
+    margin: 0; padding: 0; list-style: none;
+    font-size: 13px; color: var(--ink-2);
+  }
+  .um-review li {
+    display: flex; gap: 6px; align-items: flex-start;
+    padding: 2px 0;
+  }
+  .um-review li::before {
+    content: "✓"; color: var(--success); font-weight: 700; flex: 0 0 14px;
+  }
+  .um-review li.x::before { content: "✗"; color: var(--danger); }
+  .um-promo {
+    display: inline-block;
+    color: var(--brand); text-decoration: underline;
+    font-size: 13px;
+    margin: var(--s-3) 0 0;
+  }
+  .um-pay-row {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin: var(--s-4) 0 var(--s-3);
+    padding-top: var(--s-3);
+    border-top: 1px solid var(--border);
+  }
+  .um-pay-row .lbl { font-weight: 700; }
+  .um-pay-row .amt { font-size: 24px; font-weight: 800; }
+
+  .um-terms {
+    display: flex; gap: var(--s-2); align-items: flex-start;
+    font-size: 12px; color: var(--ink-2);
+    margin-bottom: var(--s-3);
+  }
+  .um-terms input { margin-top: 2px; flex: 0 0 16px; }
+  .um-terms a { color: var(--brand); text-decoration: underline; }
+
+  .um-cta { width: 100%; }
+  .um-cta.paypal {
+    background: #0070ba; border-color: #0070ba; color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-style: italic;
+    font-weight: 800;
+  }
+  .um-cta.gpay {
+    background: #1a73e8; border-color: #1a73e8; color: #fff;
+  }
+
+  .um-note {
+    color: var(--ink-3); font-size: 12px;
+    margin: var(--s-3) 0 var(--s-2);
+    text-align: center;
+  }
+
+  /* simple show/hide flags */
+  [data-show="false"] { display: none !important; }
+
   /* delete confirmation modal */
   .modal-back {
     position: fixed; inset: 0;
@@ -821,6 +1106,9 @@
             <button role="tab" data-tab="membership" aria-selected="false">Membership</button>
           </div>
         </nav>
+
+        <!-- ===================== SCROLLABLE AREA (pages + footer) ===================== -->
+        <div class="app-scroll">
 
         <!-- ===================== PROJECTS (no reference screenshot) ===================== -->
         <section class="page" data-page="projects">
@@ -1068,7 +1356,7 @@
                 <div class="price">$19</div>
                 <div class="freq">per month</div>
               </div>
-              <button class="btn cta" data-toast="Get Accelerator">Get Accelerator</button>
+              <button class="btn cta" data-upgrade="accelerator">Get Accelerator</button>
               <div class="features-block">
                 <h4>What's Included</h4>
                 <ul>
@@ -1109,7 +1397,7 @@
                 <div class="price">$37</div>
                 <div class="freq">per month</div>
               </div>
-              <button class="btn cta" data-toast="Get Builder">Get Builder</button>
+              <button class="btn cta" data-upgrade="builder">Get Builder</button>
               <div class="features-block">
                 <h4>What's Included</h4>
                 <ul>
@@ -1149,7 +1437,7 @@
                 <div class="price">$99</div>
                 <div class="freq">per month</div>
               </div>
-              <button class="btn cta" data-toast="Get Advanced">Get Advanced</button>
+              <button class="btn cta" data-upgrade="advanced">Get Advanced</button>
               <div class="features-block">
                 <h4>What's Included</h4>
                 <ul>
@@ -1198,6 +1486,148 @@
         <footer class="app-footer">
           Thunkable Inc. Version v899-7004-staging
         </footer>
+
+        </div><!-- /.app-scroll -->
+
+        <!-- ===================== UPGRADE MODAL ===================== -->
+        <div class="um-back" id="umBack" role="dialog" aria-modal="true" aria-labelledby="umTitle">
+          <div class="um-shell">
+            <header class="um-head">
+              <div class="um-title" id="umTitle">Upgrade to get more out of Thunkable</div>
+              <button class="um-close" id="umClose" aria-label="Close">×</button>
+            </header>
+
+            <div class="um-body">
+              <!-- ============== LEFT COLUMN ============== -->
+              <div>
+                <div class="um-section">
+                  <h3>Choose your payment option</h3>
+                  <div class="um-radios" id="umPayOpts">
+                    <button class="um-radio" data-pay="card" aria-pressed="true">
+                      <span class="lead">Credit Card</span>
+                      <span class="logos"><span>VISA</span><span>MC</span><span>AMEX</span></span>
+                    </button>
+                    <button class="um-radio" data-pay="paypal" aria-pressed="false">
+                      <span class="lead">Paypal</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Billing cycle (Credit Card variant: monthly vs annual) -->
+                <div class="um-section" data-when-pay="card">
+                  <h3>Choose your billing cycle</h3>
+                  <div class="um-radios" id="umCycleCard">
+                    <button class="um-radio" data-cycle="monthly" aria-pressed="true">
+                      <span class="lead">Monthly billing</span>
+                      <span class="sub"><strong id="cardMonthly">$19</strong> / month</span>
+                    </button>
+                    <button class="um-radio" data-cycle="annual" aria-pressed="false">
+                      <span class="save-pill">SAVE 17%</span>
+                      <span class="lead">Annual billing</span>
+                      <span class="sub"><strong id="cardAnnual">$18</strong> / month</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Billing cycle (PayPal variant: 1 year vs 1 month) -->
+                <div class="um-section" data-when-pay="paypal" data-show="false">
+                  <h3>Choose your billing plan</h3>
+                  <div class="um-radios" id="umCyclePaypal">
+                    <button class="um-radio" data-cycle="annual" aria-pressed="false">
+                      <span class="lead">1 year</span>
+                      <span class="sub"><strong id="ppAnnual">$18</strong> / month (billed annually <span id="ppAnnualTotal">$216</span>)</span>
+                    </button>
+                    <button class="um-radio" data-cycle="monthly" aria-pressed="true">
+                      <span class="lead">1 month</span>
+                      <span class="sub"><strong id="ppMonthly">$19</strong> / month</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Payment Details (only for Credit Card) -->
+                <div class="um-section" data-when-pay="card">
+                  <h3>Payment Details</h3>
+                  <div class="um-paytab" id="umPayTab">
+                    <button data-paytab="card" aria-pressed="true">
+                      <span aria-hidden="true">💳</span> Card
+                    </button>
+                    <button data-paytab="gpay" aria-pressed="false">
+                      <span class="gpay-chip">G Pay</span> Google Pay
+                    </button>
+                  </div>
+
+                  <!-- Card form -->
+                  <div data-when-paytab="card">
+                    <div class="um-field">
+                      <label for="cardNum">Card number</label>
+                      <input id="cardNum" type="text" placeholder="1234 1234 1234 1234" autocomplete="cc-number" />
+                    </div>
+                    <div class="um-field">
+                      <label for="cardExp">Expiration date</label>
+                      <input id="cardExp" type="text" placeholder="MM / YY" autocomplete="cc-exp" />
+                    </div>
+                    <div class="um-field">
+                      <label for="cardCvc">Security code</label>
+                      <input id="cardCvc" type="text" placeholder="CVC" autocomplete="cc-csc" />
+                    </div>
+                    <div class="um-field">
+                      <label for="cardCountry">Country</label>
+                      <select id="cardCountry">
+                        <option>Portugal</option>
+                        <option>United States</option>
+                        <option>United Kingdom</option>
+                        <option>Spain</option>
+                        <option>Germany</option>
+                        <option>France</option>
+                        <option>Brazil</option>
+                      </select>
+                    </div>
+                    <p class="um-disclaimer">By providing your card information, you allow Thunkable, Inc. to charge your card for future payments in accordance with their terms.</p>
+                  </div>
+
+                  <!-- Google Pay disclaimer -->
+                  <div data-when-paytab="gpay" data-show="false">
+                    <p class="um-disclaimer">By continuing, you allow Thunkable, Inc. to charge your Google Pay account for this payment and future payments in accordance with their terms.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ============== RIGHT COLUMN (Review) ============== -->
+              <aside class="um-review">
+                <h3>Review and purchase</h3>
+                <div class="um-target">Upgrade to <span id="umCycleWord">monthly</span> <span id="umPlanWord">accelerator</span> plan</div>
+                <div id="umFeatures"></div>
+                <a href="#" class="um-promo" data-toast="Promo code field opened">Add promo</a>
+
+                <div class="um-pay-row">
+                  <span class="lbl">Today's payment</span>
+                  <span class="amt">$<span id="umTodayAmount">19</span></span>
+                </div>
+
+                <!-- Terms + CTA (variant per payment option / sub-tab) -->
+                <!-- Card form: terms checkbox + plan CTA -->
+                <div data-cta-state="card-form">
+                  <label class="um-terms">
+                    <input type="checkbox" id="umTerms" />
+                    <span>I agree to <a href="#">Thunkable's Terms of service</a> and <a href="#">Privacy Policy</a></span>
+                  </label>
+                  <button class="btn um-cta" id="umCtaCard" disabled>Get <span class="cta-cycle">monthly</span> <span class="cta-plan">accelerator</span></button>
+                </div>
+
+                <!-- Google Pay: confirm CTA -->
+                <div data-cta-state="gpay" data-show="false">
+                  <button class="btn um-cta gpay" data-toast="Google Pay sheet would open">Confirm to use Google Pay</button>
+                </div>
+
+                <!-- PayPal: branded button -->
+                <div data-cta-state="paypal" data-show="false">
+                  <div class="um-note">Click below to continue with Paypal</div>
+                  <button class="btn um-cta paypal" data-toast="PayPal flow would open">PayPal</button>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1238,7 +1668,8 @@
       if (selected) b.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
     });
     pages.forEach(p => p.setAttribute("data-active", p.dataset.page === tabKey ? "true" : "false"));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const scroller = document.querySelector(".app-scroll");
+    if (scroller) scroller.scrollTo({ top: 0, behavior: "smooth" });
   }
   track.addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-tab]");
@@ -1310,6 +1741,268 @@
       const on = s.getAttribute("aria-pressed") === "true";
       s.setAttribute("aria-pressed", on ? "false" : "true");
     });
+  });
+
+  // ================================================================
+  // UPGRADE FLOW (Membership → Get <Plan>)
+  // Mirrors the three states shown in the desktop screenshots:
+  //   1. Credit Card + Card form (default)
+  //   2. Credit Card + Google Pay
+  //   3. PayPal (with 1 year / 1 month options)
+  // Accelerator's modal content comes from the screenshots verbatim;
+  // Builder/Advanced reuse the Membership plan card content (no
+  // separate modal screenshots were provided for those plans).
+  // ================================================================
+  const PLANS = {
+    accelerator: {
+      label: "accelerator",
+      monthly: 19,
+      annual: 18,
+      annualTotal: 216,
+      sections: {
+        "What's Included": [
+          "20 000 AI Tokens",
+          "5 Public Projects",
+          "1 Private Project",
+          "Restore Last 10 Versions",
+          "Cloud Database and Authentication"
+        ],
+        "Publishing": [
+          "Unlimited Testing Downloads",
+          "5 Distribution Downloads",
+          "1 Live Published App",
+          "1 Active Web Apps Published"
+        ],
+        "Support": [
+          "Community Support",
+          "Intercom Support"
+        ]
+      },
+      notIncluded: [
+        "Chat Support",
+        "Multiple Live Published Apps",
+        "Custom Branding"
+      ]
+    },
+    builder: {
+      label: "builder",
+      monthly: 37,
+      annual: 31,
+      annualTotal: 372,
+      sections: {
+        "What's Included": [
+          "50 000 AI Tokens",
+          "Unlimited Public Projects",
+          "10 Private Projects",
+          "10 Project Versions",
+          "Cloud Database (Bring your own Supabase)"
+        ],
+        "Publishing": [
+          "Unlimited Testing Downloads",
+          "1 Published App",
+          "25 Downloads",
+          "1 Active Mobile App Published",
+          "2 Active Mobile Web Apps Published"
+        ],
+        "Support": [
+          "Community Support",
+          "Intercom Support"
+        ]
+      },
+      notIncluded: [
+        "Unlimited Mobile and Web App Publishing",
+        "Expedited Support"
+      ]
+    },
+    advanced: {
+      label: "advanced",
+      monthly: 99,
+      annual: 82,
+      annualTotal: 984,
+      sections: {
+        "What's Included": [
+          "100 000 AI Tokens",
+          "Unlimited Public Projects",
+          "Unlimited Private Projects",
+          "50 Project Versions",
+          "Cloud Database (Bring your own Supabase)"
+        ],
+        "Publishing": [
+          "Unlimited Testing Downloads",
+          "Unlimited App Publishing",
+          "Unlimited Web Apps"
+        ],
+        "Support": [
+          "Expedited Support",
+          "Community Support",
+          "Intercom Support"
+        ]
+      },
+      notIncluded: []
+    }
+  };
+
+  const um = {
+    back: document.getElementById("umBack"),
+    close: document.getElementById("umClose"),
+    payOpts: document.getElementById("umPayOpts"),
+    cycleCard: document.getElementById("umCycleCard"),
+    cyclePaypal: document.getElementById("umCyclePaypal"),
+    payTab: document.getElementById("umPayTab"),
+    cycleWord: document.getElementById("umCycleWord"),
+    planWord: document.getElementById("umPlanWord"),
+    todayAmount: document.getElementById("umTodayAmount"),
+    features: document.getElementById("umFeatures"),
+    terms: document.getElementById("umTerms"),
+    ctaCard: document.getElementById("umCtaCard"),
+    cardMonthly: document.getElementById("cardMonthly"),
+    cardAnnual: document.getElementById("cardAnnual"),
+    ppMonthly: document.getElementById("ppMonthly"),
+    ppAnnual: document.getElementById("ppAnnual"),
+    ppAnnualTotal: document.getElementById("ppAnnualTotal")
+  };
+
+  let state = {
+    plan: "accelerator",
+    pay: "card",        // "card" | "paypal"
+    cycle: "monthly",   // "monthly" | "annual"
+    payTab: "card"      // "card" | "gpay"
+  };
+
+  function setShow(selector, condition) {
+    document.querySelectorAll(selector).forEach(el => {
+      el.setAttribute("data-show", condition(el) ? "true" : "false");
+    });
+  }
+
+  function syncCycleSelections() {
+    um.cycleCard.querySelectorAll(".um-radio").forEach(r => r.setAttribute("aria-pressed", r.dataset.cycle === state.cycle ? "true" : "false"));
+    um.cyclePaypal.querySelectorAll(".um-radio").forEach(r => r.setAttribute("aria-pressed", r.dataset.cycle === state.cycle ? "true" : "false"));
+  }
+
+  function syncPayOpts() {
+    um.payOpts.querySelectorAll(".um-radio").forEach(r => r.setAttribute("aria-pressed", r.dataset.pay === state.pay ? "true" : "false"));
+    // show the right billing block + the right payment-details section
+    setShow("[data-when-pay='card']",   () => state.pay === "card");
+    setShow("[data-when-pay='paypal']", () => state.pay === "paypal");
+    // CTA states
+    let ctaState = "card-form";
+    if (state.pay === "paypal") ctaState = "paypal";
+    else if (state.payTab === "gpay") ctaState = "gpay";
+    setShow("[data-cta-state]", el => el.getAttribute("data-cta-state") === ctaState);
+  }
+
+  function syncPayTab() {
+    um.payTab.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.paytab === state.payTab ? "true" : "false"));
+    setShow("[data-when-paytab='card']", () => state.payTab === "card");
+    setShow("[data-when-paytab='gpay']", () => state.payTab === "gpay");
+    // CTA changes when sub-tab changes
+    syncPayOpts();
+  }
+
+  function syncPrices() {
+    const p = PLANS[state.plan];
+    um.cardMonthly.textContent = "$" + p.monthly;
+    um.cardAnnual.textContent  = "$" + p.annual;
+    um.ppMonthly.textContent   = "$" + p.monthly;
+    um.ppAnnual.textContent    = "$" + p.annual;
+    um.ppAnnualTotal.textContent = "$" + p.annualTotal;
+    const pricePer = state.cycle === "monthly" ? p.monthly : p.annual;
+    um.todayAmount.textContent = pricePer;
+  }
+
+  function renderFeatures() {
+    const p = PLANS[state.plan];
+    const html = [];
+    Object.entries(p.sections).forEach(([title, items]) => {
+      html.push(`<h4>${title}</h4><ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>`);
+    });
+    if (p.notIncluded.length) {
+      html.push(`<h4>Key Features Not Included</h4><ul>${p.notIncluded.map(i => `<li class="x">${i}</li>`).join("")}</ul>`);
+    }
+    um.features.innerHTML = html.join("");
+  }
+
+  function syncWording() {
+    const p = PLANS[state.plan];
+    const cycleWord = state.cycle === "monthly" ? "monthly" : "annual";
+    um.cycleWord.textContent = cycleWord;
+    um.planWord.textContent = p.label;
+    document.querySelectorAll(".cta-cycle").forEach(el => el.textContent = cycleWord);
+    document.querySelectorAll(".cta-plan").forEach(el => el.textContent = p.label);
+  }
+
+  function openUpgrade(planKey) {
+    state.plan = planKey;
+    state.pay = "card";
+    state.cycle = "monthly";
+    state.payTab = "card";
+    um.terms.checked = false;
+    um.ctaCard.disabled = true;
+    syncPayOpts();
+    syncPayTab();
+    syncCycleSelections();
+    syncPrices();
+    renderFeatures();
+    syncWording();
+    um.back.setAttribute("data-open", "true");
+  }
+  function closeUpgrade() {
+    um.back.setAttribute("data-open", "false");
+  }
+
+  // open from plan cards
+  document.querySelectorAll("[data-upgrade]").forEach(btn => {
+    btn.addEventListener("click", () => openUpgrade(btn.getAttribute("data-upgrade")));
+  });
+  um.close.addEventListener("click", closeUpgrade);
+  um.back.addEventListener("click", (e) => { if (e.target === um.back) closeUpgrade(); });
+
+  // payment option
+  um.payOpts.addEventListener("click", e => {
+    const r = e.target.closest(".um-radio");
+    if (!r) return;
+    state.pay = r.dataset.pay;
+    // PayPal flow shows 1 month default-selected (matches screenshot)
+    if (state.pay === "paypal") state.cycle = "monthly";
+    syncPayOpts();
+    syncCycleSelections();
+    syncPrices();
+    syncWording();
+  });
+
+  // billing cycle (Card branch)
+  um.cycleCard.addEventListener("click", e => {
+    const r = e.target.closest(".um-radio");
+    if (!r) return;
+    state.cycle = r.dataset.cycle;
+    syncCycleSelections();
+    syncPrices();
+    syncWording();
+  });
+  // billing cycle (PayPal branch)
+  um.cyclePaypal.addEventListener("click", e => {
+    const r = e.target.closest(".um-radio");
+    if (!r) return;
+    state.cycle = r.dataset.cycle;
+    syncCycleSelections();
+    syncPrices();
+    syncWording();
+  });
+
+  // payment sub-tabs (Card / Google Pay)
+  um.payTab.addEventListener("click", e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    state.payTab = b.dataset.paytab;
+    syncPayTab();
+  });
+
+  // terms checkbox gates the credit-card CTA
+  um.terms.addEventListener("change", () => { um.ctaCard.disabled = !um.terms.checked; });
+  um.ctaCard.addEventListener("click", () => {
+    closeUpgrade();
+    toast("Upgrade confirmed (simulated)");
   });
 })();
 </script>
